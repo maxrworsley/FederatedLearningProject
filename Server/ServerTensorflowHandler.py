@@ -20,6 +20,7 @@ class TensorflowHandler:
     def plot_loss(history):
         plt.plot(history.history['loss'], label='loss')
         plt.plot(history.history['val_loss'], label='val_loss')
+        plt.ylim([0, 1])
         plt.xlabel('Epoch')
         plt.ylabel('Error [target]')
         plt.legend()
@@ -42,8 +43,8 @@ class TensorflowHandler:
 
         self.model = tf.keras.Sequential([
             normalizer,
-            tf.keras.layers.Dense(64, activation='relu'),
-            tf.keras.layers.Dense(64, activation='relu'),
+            tf.keras.layers.Dense(64, activation='sigmoid'),
+            tf.keras.layers.Dense(64, activation='sigmoid'),
             tf.keras.layers.Dense(units=1)
         ])
 
