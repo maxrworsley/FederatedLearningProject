@@ -21,7 +21,7 @@ class TestStandardMessage(unittest.TestCase):
         serialised_message[8] = 30
 
         with self.assertRaises(_pickle.UnpicklingError):
-            deserialised_message = s.deserialise_message(serialised_message)
+            s.deserialise_message(serialised_message)
 
 
 if __name__ == '__main__':
