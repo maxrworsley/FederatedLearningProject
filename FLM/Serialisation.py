@@ -33,6 +33,8 @@ class Serialiser:
         """
         if len(message) <= 0:
             raise ValueError('Tried to deserialise empty message')
+        elif len(message) <= (Serialiser.BYTES_MESSAGE_ID + Serialiser.BYTES_HEADER + Serialiser.BYTES_API_VERSION):
+            raise ValueError('Tried to deserialise message with too short a header')
 
         header_length = int.from_bytes(message[:2], byteorder='big')
         header = bytearray(message[2:2 + header_length])
@@ -40,8 +42,8 @@ class Serialiser:
         message_id = int.from_bytes(header[Serialiser.BYTES_API_VERSION:], byteorder='big')
 
         if api_version != Serialiser.API_VERSION:
-            print(f"Message API mismatch. Current version {Serialiser.API_VERSION}, received message on {api_version}")
-            raise ValueError('Received message from wrong API version.')
+            print(f"Possible message API mismatch. Current version {Serialiser.API_VERSION}, received message on {api_version}")
+            raise ValueError('Possibly received message from wrong API version.')
 
         message_object = pickle.loads(message[2 + header_length:])
         return message_object
