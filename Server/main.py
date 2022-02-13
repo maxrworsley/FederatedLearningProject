@@ -1,12 +1,8 @@
 import FLServer
-import ServerTensorflowHandler
-import DataWrapper
 import RoundCoordinator
 
 if __name__ == '__main__':
-    data_wrapper = DataWrapper.DataWrapper("/home/max/Documents/FederatedLearning/Data/data.csv")
-    tensorflow_handler = \
-        ServerTensorflowHandler.TensorflowHandler("BasicHandler", data_wrapper)
+
     coordinator = RoundCoordinator.Coordinator()
-    server = FLServer.FLServer("LocalServer", tensorflow_handler)
+    server = FLServer.FLServer(coordinator)
     server.run_server()
