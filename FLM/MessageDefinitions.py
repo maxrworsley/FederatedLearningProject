@@ -5,13 +5,22 @@ class BaseMessage:
     receiver_id = -1
     time_sent = 0
 
-    def __repr__(self):
+    def __init__(self, round_id, sender_id, receiver_id, time_sent):
+        self.round_id = round_id
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.time_sent = time_sent
+
+    def __str__(self):
         return (f"""
         sender_id={self.sender_id},
         receiver_id={self.receiver_id},
         time_sent={self.time_sent},
         message_id={self.id}
         """)
+
+    def __repr__(self):
+        return f'{self.id}{self.round_id}{self.sender_id}{self.receiver_id}{self.time_sent}'
 
 
 class RequestJoinRound(BaseMessage):
