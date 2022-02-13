@@ -8,7 +8,8 @@ class TensorflowHandler:
     training_labels = None
     test_features = None
     test_labels = None
-    linear_model = None
+    model = None
+    history = []
 
     def __init__(self, name, datawrapper):
         self.name = name
@@ -39,26 +40,20 @@ class TensorflowHandler:
 
         normalizer.adapt(np.array(self.training_features))
 
-        self.linear_model = tf.keras.Sequential([
+        self.model = tf.keras.Sequential([
             normalizer,
             tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dense(64, activation='relu'),
             tf.keras.layers.Dense(units=1)
         ])
 
-        self.linear_model.compile(
+        self.model.compile(
             optimizer=tf.optimizers.Adam(learning_rate=0.05),
             loss='mean_absolute_error'
         )
 
-    def fit_model(self, epochs):
-        test_results_before = self.linear_model.evaluate(
-            self.test_features,
-            self.test_labels,
-            verbose=0
-        )
-
-        history = self.linear_model.fit(
+    def fit_model(self, epochs, plot_history=False):
+        history = self.model.fit(
             self.training_features,
             self.training_labels,
             epochs=epochs,
@@ -66,13 +61,8 @@ class TensorflowHandler:
             validation_split=0.2
         )
 
-        test_results_after = self.linear_model.evaluate(
-            self.test_features,
-            self.test_labels,
-            verbose=0
-        )
+        self.history.append(history)
 
-        self.plot_loss(history)
-        plt.show()
-
-        print(f'Test results before = {test_results_before}, and after = {test_results_after}')
+        if plot_history:
+            self.plot_loss(history)
+            plt.show()
