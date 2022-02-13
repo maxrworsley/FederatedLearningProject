@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 class DataWrapper:
@@ -12,17 +10,18 @@ class DataWrapper:
         column_names = ['day', 'max_temp', 'min_temp', 'precipitation_amount', 'target']
 
         raw_dataset = pd.read_csv(self.data_path, names=column_names,
-                                  na_values='?', comment='\t',
+                                  na_values='#REF!', comment='\t',
                                   sep=',', skipinitialspace=True)
 
         matched_dataset = self.match_records_to_predictions(raw_dataset.to_numpy())
         column_names = ['1max_temp', '1min_temp', '1precip',
                         '2max_temp', '2min_temp', '2precip',
                         '3max_temp', '3min_temp', '3precip', 'target']
-        dataset = pd.DataFrame(matched_dataset, columns=column_names)
 
-        sns
-        return dataset
+        dataset = pd.DataFrame(matched_dataset, columns=column_names)
+        dataset = dataset.astype(float)
+
+        return dataset.dropna()
 
     @staticmethod
     def match_records_to_predictions(dataset):
