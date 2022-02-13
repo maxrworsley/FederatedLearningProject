@@ -6,9 +6,6 @@ class Serialiser:
     BYTES_HEADER = 2
     BYTES_API_VERSION = 2
     BYTES_MESSAGE_ID = 2
-    """
-    Converts between message objects and fully serialised byte arrays for the wire.
-    """
 
     @staticmethod
     def serialise_message(message_object):
