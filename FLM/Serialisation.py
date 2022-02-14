@@ -1,3 +1,4 @@
+import _pickle
 import pickle
 
 
@@ -45,5 +46,9 @@ class Serialiser:
             print(f"Possible message API mismatch. Current version {Serialiser.API_VERSION}, received message on {api_version}")
             raise ValueError('Possibly received message from wrong API version.')
 
-        message_object = pickle.loads(message[2 + header_length:])
+        try:
+            message_object = pickle.loads(message[2 + header_length:])
+        except _pickle.UnpicklingError:
+            raise ValueError('Could not deserialise')
+
         return message_object
