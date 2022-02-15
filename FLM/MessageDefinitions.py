@@ -23,34 +23,42 @@ class BaseMessage:
         return f'{self.id}{self.round_id}{self.sender_id}{self.receiver_id}{self.time_sent}'
 
 
-class RequestJoinRound(BaseMessage):
+class CheckConnection(BaseMessage):
     id = 2
 
 
-class ResponseJoinRound(BaseMessage):
+class CheckConnectionResponse(BaseMessage):
     id = 3
+
+
+class RequestJoinRound(BaseMessage):
+    id = 4
+
+
+class ResponseJoinRound(BaseMessage):
+    id = 5
     accepted_into_round = False
     heartbeat_interval = 5
 
 
 class ClientHeartbeat(BaseMessage):
-    id = 4
+    id = 6
 
 
 class RequestTrainModel(BaseMessage):
-    id = 5
+    id = 7
     checkpoint_bytes = ""
 
 
 class ResponseTrainModel(BaseMessage):
-    id = 6
+    id = 8
     checkpoint_bytes = ""
 
 
 class RequestLeaveRound(BaseMessage):
-    id = 7
+    id = 9
     reason_for_leaving = "Cancelled"
 
 
 class RoundCancelled(BaseMessage):
-    id = 8
+    id = 10
