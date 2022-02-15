@@ -1,20 +1,59 @@
+import socket
 import Connection
 import Serialisation
+import threading
 
 
 class BaseChannel:
     connection = None
+    message_queue = None
+    async_thread = None
+    async_receive = False
 
     def disconnect(self):
+        self.stop_async_receive()
         self.connection.disconnect()
         self.connection = None
+
+    def set_async_queue(self, queue):
+        self.message_queue = queue
 
     def send(self, message):
         serialised_message = Serialisation.Serialiser.serialise_message(message)
         self.connection.send_bytes(serialised_message)
 
+    def start_async_receive(self):
+        self.stop_async_receive()
+        self.async_receive = True
+        self.async_thread = threading.Thread(target=self.async_receiver)
+
+    def stop_async_receive(self):
+        self.async_receive = False
+
+    def async_receiver(self):
+        while self.async_receive:
+            message = self.receive(False)
+            if self.async_receive:
+                if message is not None:
+                    self.message_queue.queue(message)
+
     def sync_receive(self):
-        message_bytes = self.connection.receive_bytes()
+        return self.receive(True)
+
+    def receive(self, synchronous):
+        if synchronous:
+            message_bytes = None
+
+            while message_bytes is None:
+                try:
+                    message_bytes = self.connection.receive_bytes()
+                except socket.timeout:
+                    pass
+        else:
+            try:
+                message_bytes = self.connection.receive_bytes()
+            except socket.timeout:
+                return None
 
         try:
             deserialised_message = Serialisation.Serialiser.deserialise_message(message_bytes)
@@ -26,6 +65,7 @@ class BaseChannel:
 
     def __del__(self):
         if self.connection is not None:
+            self.stop_async_receive()
             self.connection.disconnect()
 
 

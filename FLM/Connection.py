@@ -4,6 +4,7 @@ from socket import *
 def get_new_server_socket(ip, port):
     new_socket = socket(AF_INET, SOCK_STREAM)
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    new_socket.settimeout(0.5)
     new_socket.bind((ip, port))
     return new_socket
 
@@ -38,6 +39,7 @@ class ConnectionToServer(Connection):
         self.disconnect()
         self.socket = socket(AF_INET, SOCK_STREAM)
         self.socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        self.socket.settimeout(0.5)
 
         try:
             self.socket.bind((self.ip, self.port))
