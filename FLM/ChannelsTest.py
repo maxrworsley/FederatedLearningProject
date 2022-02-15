@@ -1,8 +1,11 @@
+import _queue
+import time
 import unittest
 import Channels
 import Connection
 import MessageDefinitions
 import threading
+import queue
 
 
 class ChannelUsage(unittest.TestCase):
@@ -32,6 +35,41 @@ class ChannelUsage(unittest.TestCase):
 
         self.assertTrue(sent_message.__repr__() == received_message.__repr__())
         new_socket.close()
+
+    def test_async_message_to_server(self):
+        server_port = 40400
+        new_socket = Connection.get_new_server_socket("", server_port)
+        client_channel_to_server, server_channel_to_client = self.make_client_server_channels(new_socket, server_port)
+
+        self.connect_client_server(server_channel_to_client, client_channel_to_server, 40400)
+
+        sent_message_1 = MessageDefinitions.BaseMessage(1, 1, 0, 1)
+        sent_message_2 = MessageDefinitions.BaseMessage(1, 1, 0, 2)
+        sent_message_3 = MessageDefinitions.BaseMessage(1, 1, 0, 3)
+
+        server_message_queue = queue.Queue()
+        server_channel_to_client.set_async_queue(server_message_queue)
+        server_channel_to_client.start_async_receive()
+
+        client_channel_to_server.send(sent_message_1)
+        client_channel_to_server.send(sent_message_2)
+        client_channel_to_server.send(sent_message_3)
+
+        received_messages = []
+        for x in range(3):
+            try:
+                received_messages.append(server_message_queue.get(timeout=0.1))
+            except _queue.Empty:
+                pass
+            time.sleep(0.2)
+
+        server_channel_to_client.stop_async_receive()
+
+        for message in received_messages:
+            print(message)
+
+        self.assertTrue(len(received_messages) == 3)
+
 
     @staticmethod
     def connect_client_server(server_channel_to_client, client_channel_to_serer, server_port):

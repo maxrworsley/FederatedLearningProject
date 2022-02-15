@@ -26,6 +26,7 @@ class BaseChannel:
         self.stop_async_receive()
         self.async_receive = True
         self.async_thread = threading.Thread(target=self.async_receiver)
+        self.async_thread.start()
 
     def stop_async_receive(self):
         self.async_receive = False
@@ -35,7 +36,7 @@ class BaseChannel:
             message = self.receive(False)
             if self.async_receive:
                 if message is not None:
-                    self.message_queue.queue(message)
+                    self.message_queue.put(message)
 
     def sync_receive(self):
         return self.receive(True)
