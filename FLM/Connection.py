@@ -8,6 +8,7 @@ def get_new_server_socket(ip, port):
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     new_socket.settimeout(0.5)
     new_socket.bind((ip, port))
+    new_socket.listen(10)
     return new_socket
 
 
@@ -99,13 +100,14 @@ class ConnectionToClient(Connection):
         bytes_received = self.get_full_packet(self.connection)
         return bytes_received
 
-    def wait_for_connection(self, timeout_countdown=3):
+    def wait_for_connection(self, timeout_countdown=10):
         self.disconnect()
-        self.socket.listen(1)
         for x in range(timeout_countdown):
             try:
                 self.connection, self.remote_address = self.socket.accept()
+                if self.connection:
+                    return True
             except _socket.timeout:
                 time.sleep(1)
 
-        return True if self.connection is not None else False
+        return False

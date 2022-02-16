@@ -14,6 +14,7 @@ class BaseChannel:
         self.stop_async_receive()
         self.connection.disconnect()
         self.connection = None
+        print("Disconnected channel")
 
     def set_async_queue(self, queue):
         self.message_queue = queue
@@ -51,6 +52,7 @@ class BaseChannel:
                 except socket.timeout:
                     pass
                 except OSError:
+                    self.disconnect()
                     return None
         else:
             try:
@@ -58,6 +60,7 @@ class BaseChannel:
             except socket.timeout:
                 return None
             except OSError:
+                self.disconnect()
                 return None
 
         if message_bytes is None:
@@ -66,7 +69,7 @@ class BaseChannel:
         try:
             deserialised_message = Serialisation.Serialiser.deserialise_message(message_bytes)
         except ValueError:
-            # todo disconnect?
+            self.disconnect()
             return None
 
         return deserialised_message
@@ -82,7 +85,7 @@ class ChannelToServer(BaseChannel):
         self.connection = Connection.ConnectionToServer("", local_port)
 
     def establish_connection(self, target_ip, target_port):
-        self.connection.connect_to_remote(target_ip, target_port)
+        return self.connection.connect_to_remote(target_ip, target_port)
 
 
 class ChannelToClient(BaseChannel):
@@ -90,4 +93,4 @@ class ChannelToClient(BaseChannel):
         self.connection = Connection.ConnectionToClient(local_socket)
 
     def establish_connection(self):
-        self.connection.wait_for_connection()
+        return self.connection.wait_for_connection()

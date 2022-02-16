@@ -1,6 +1,8 @@
 import _queue
 import queue
 import Channels
+import time
+from FLM import MessageDefinitions
 
 
 class BaseSessionManager:
@@ -8,6 +10,15 @@ class BaseSessionManager:
     channel = None
     send_queue = queue.Queue()
     receive_queue = queue.Queue()
+    channel_receive_queue = queue.Queue()
+
+    def start(self):
+        self.channel.start_async_receive()
+
+        while self.run:
+            time.sleep(0.2)
+            self.send_next_message()
+            self.receive_next_message()
 
     def stop(self):
         self.run = False
@@ -15,15 +26,18 @@ class BaseSessionManager:
 
     def send_next_message(self):
         try:
-            next_message = self.send_queue.get()
+            next_message = self.send_queue.get(block=False)
         except _queue.Empty:
             return
 
-        self.channel.send(next_message)
+        if next_message.id == MessageDefinitions.StopSession.id:
+            self.run = False
+        else:
+            self.channel.send(next_message)
 
     def receive_next_message(self):
         try:
-            next_message = self.send_queue.get()
+            next_message = self.channel_receive_queue.get(block=False)
         except _queue.Empty:
             return
 
@@ -44,11 +58,7 @@ class ClientSessionManager(BaseSessionManager):
     def start(self):
         self.run = True
         self.channel.establish_connection(self.remote_ip, self.remote_port)
-        self.channel.start_async_receive()
-
-        while self.run:
-            self.send_next_message()
-            self.receive_next_message()
+        super().start()
 
 
 class ServerSessionManager(BaseSessionManager):
@@ -63,8 +73,4 @@ class ServerSessionManager(BaseSessionManager):
     def start(self):
         self.run = True
         self.channel.establish_connection()
-        self.channel.start_async_receive()
-
-        while self.run:
-            self.send_next_message()
-            self.receive_next_message()
+        super().start()

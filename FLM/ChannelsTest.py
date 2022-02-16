@@ -71,7 +71,6 @@ class ChannelUsage(unittest.TestCase):
         self.assertTrue(len(received_messages) == 3)
         new_socket.close()
 
-
     @staticmethod
     def connect_client_server(server_channel_to_client, client_channel_to_serer, server_port):
         try:

@@ -1,4 +1,5 @@
 import _queue
+import time
 
 import MessageDefinitions
 import unittest
@@ -19,21 +20,25 @@ class SessionManagerTests(unittest.TestCase):
 
         client_thread = threading.Thread(target=client_session.start)
         server_thread = threading.Thread(target=server_session.start)
-        client_thread.start()
         server_thread.start()
+        client_thread.start()
 
         c_send_queue.put(MessageDefinitions.BaseMessage(0, 0, 0, 0))
+
         message = None
         while message is None:
             try:
                 message = s_receive_queue.get()
             except _queue.Empty:
                 pass
+
         print(message)
-        # c_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
+
+        c_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
         client_thread.join()
         server_thread.join()
         self.assertTrue(True)
+        new_socket.close()
 
 
 if __name__ == '__main__':
