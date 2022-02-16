@@ -1,3 +1,5 @@
+import _socket
+import time
 from socket import *
 
 
@@ -14,7 +16,10 @@ class Connection:
     socket = None
 
     def get_full_packet(self, receiving_socket, buffer_size=2048):
-        packet_length_bytes = receiving_socket.recv(self.PACKET_LENGTH_BYTES)
+        try:
+            packet_length_bytes = receiving_socket.recv(self.PACKET_LENGTH_BYTES)
+        except AttributeError:
+            return None
         packet_length = int.from_bytes(packet_length_bytes, byteorder='big')
 
         data = bytearray()
@@ -94,9 +99,13 @@ class ConnectionToClient(Connection):
         bytes_received = self.get_full_packet(self.connection)
         return bytes_received
 
-    def wait_for_connection(self):
+    def wait_for_connection(self, timeout_countdown=3):
         self.disconnect()
         self.socket.listen(1)
-        self.connection, self.remote_address = self.socket.accept()
+        for x in range(timeout_countdown):
+            try:
+                self.connection, self.remote_address = self.socket.accept()
+            except _socket.timeout:
+                time.sleep(1)
 
-        return True
+        return True if self.connection is not None else False

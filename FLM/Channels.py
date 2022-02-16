@@ -50,11 +50,18 @@ class BaseChannel:
                     message_bytes = self.connection.receive_bytes()
                 except socket.timeout:
                     pass
+                except OSError:
+                    return None
         else:
             try:
                 message_bytes = self.connection.receive_bytes()
             except socket.timeout:
                 return None
+            except OSError:
+                return None
+
+        if message_bytes is None:
+            return None
 
         try:
             deserialised_message = Serialisation.Serialiser.deserialise_message(message_bytes)
