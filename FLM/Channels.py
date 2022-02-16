@@ -12,9 +12,10 @@ class BaseChannel:
 
     def disconnect(self):
         self.stop_async_receive()
-        self.connection.disconnect()
-        self.connection = None
-        print("Disconnected channel")
+        if self.connection:
+            self.connection.disconnect()
+            self.connection = None
+            print("Disconnected channel")
 
     def set_async_queue(self, queue):
         self.message_queue = queue
@@ -61,7 +62,7 @@ class BaseChannel:
                 return None
             except OSError:
                 self.disconnect()
-                return None
+                raise
 
         if message_bytes is None:
             return None

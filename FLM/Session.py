@@ -16,6 +16,7 @@ class BaseSessionManager:
         self.channel.start_async_receive()
 
         while self.run:
+            print("In loop")
             time.sleep(0.2)
             self.send_next_message()
             self.receive_next_message()
@@ -31,7 +32,8 @@ class BaseSessionManager:
             return
 
         if next_message.id == MessageDefinitions.StopSession.id:
-            self.run = False
+            print("Seen stop session message")
+            self.stop()
         else:
             self.channel.send(next_message)
 
@@ -39,6 +41,9 @@ class BaseSessionManager:
         try:
             next_message = self.channel_receive_queue.get(block=False)
         except _queue.Empty:
+            return
+        except OSError:
+            self.stop()
             return
 
         self.receive_queue.put(next_message)
