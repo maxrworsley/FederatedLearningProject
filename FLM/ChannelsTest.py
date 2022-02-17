@@ -1,11 +1,12 @@
 import _queue
+import queue
+import threading
 import time
 import unittest
+
 import Channels
 import Connection
 import MessageDefinitions
-import threading
-import queue
 
 
 class ChannelUsage(unittest.TestCase):
@@ -23,11 +24,11 @@ class ChannelUsage(unittest.TestCase):
         new_socket.close()
 
     def test_send_message_to_server(self):
-        server_port = 40400
+        server_port = 40402
         new_socket = Connection.get_new_server_socket("", server_port)
         client_channel_to_server, server_channel_to_client = self.make_client_server_channels(new_socket, server_port)
 
-        self.connect_client_server(server_channel_to_client, client_channel_to_server, 40400)
+        self.connect_client_server(server_channel_to_client, client_channel_to_server, server_port)
 
         sent_message = MessageDefinitions.BaseMessage(1, 1, 0, 12000)
         client_channel_to_server.send(sent_message)
@@ -37,11 +38,11 @@ class ChannelUsage(unittest.TestCase):
         new_socket.close()
 
     def test_async_message_to_server(self):
-        server_port = 40400
+        server_port = 40404
         new_socket = Connection.get_new_server_socket("", server_port)
         client_channel_to_server, server_channel_to_client = self.make_client_server_channels(new_socket, server_port)
 
-        self.connect_client_server(server_channel_to_client, client_channel_to_server, 40400)
+        self.connect_client_server(server_channel_to_client, client_channel_to_server, server_port)
 
         sent_message_1 = MessageDefinitions.BaseMessage(1, 1, 0, 1)
         sent_message_2 = MessageDefinitions.BaseMessage(1, 1, 0, 2)
@@ -69,7 +70,7 @@ class ChannelUsage(unittest.TestCase):
             print(message)
 
         self.assertTrue(len(received_messages) == 3)
-
+        new_socket.close()
 
     @staticmethod
     def connect_client_server(server_channel_to_client, client_channel_to_serer, server_port):

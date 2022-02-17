@@ -1,3 +1,5 @@
+import _socket
+import time
 from socket import *
 
 
@@ -6,6 +8,7 @@ def get_new_server_socket(ip, port):
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     new_socket.settimeout(0.5)
     new_socket.bind((ip, port))
+    new_socket.listen(10)
     return new_socket
 
 
@@ -14,7 +17,10 @@ class Connection:
     socket = None
 
     def get_full_packet(self, receiving_socket, buffer_size=2048):
-        packet_length_bytes = receiving_socket.recv(self.PACKET_LENGTH_BYTES)
+        try:
+            packet_length_bytes = receiving_socket.recv(self.PACKET_LENGTH_BYTES)
+        except AttributeError:
+            return None
         packet_length = int.from_bytes(packet_length_bytes, byteorder='big')
 
         data = bytearray()
@@ -94,9 +100,14 @@ class ConnectionToClient(Connection):
         bytes_received = self.get_full_packet(self.connection)
         return bytes_received
 
-    def wait_for_connection(self):
+    def wait_for_connection(self, timeout_countdown=10):
         self.disconnect()
-        self.socket.listen(1)
-        self.connection, self.remote_address = self.socket.accept()
+        for x in range(timeout_countdown):
+            try:
+                self.connection, self.remote_address = self.socket.accept()
+                if self.connection:
+                    return True
+            except _socket.timeout:
+                time.sleep(1)
 
-        return True
+        return False

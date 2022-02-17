@@ -43,7 +43,8 @@ class Serialiser:
         message_id = int.from_bytes(header[Serialiser.BYTES_API_VERSION:], byteorder='big')
 
         if api_version != Serialiser.API_VERSION:
-            print(f"Possible message API mismatch. Current version {Serialiser.API_VERSION}, received message on {api_version}")
+            print(
+                f"Possible message API mismatch. Current version {Serialiser.API_VERSION}, received message on {api_version}")
             raise ValueError('Possibly received message from wrong API version.')
 
         try:

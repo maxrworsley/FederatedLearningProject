@@ -1,7 +1,9 @@
 import socket
-import Connection
-import Serialisation
 import threading
+
+import Connection
+import MessageDefinitions
+import Serialisation
 
 
 class BaseChannel:
@@ -12,8 +14,9 @@ class BaseChannel:
 
     def disconnect(self):
         self.stop_async_receive()
-        self.connection.disconnect()
-        self.connection = None
+        if self.connection:
+            self.connection.disconnect()
+            self.connection = None
 
     def set_async_queue(self, queue):
         self.message_queue = queue
@@ -50,16 +53,27 @@ class BaseChannel:
                     message_bytes = self.connection.receive_bytes()
                 except socket.timeout:
                     pass
+                except OSError:
+                    self.disconnect()
+                    return None
         else:
             try:
                 message_bytes = self.connection.receive_bytes()
             except socket.timeout:
                 return None
+            except OSError:
+                end_message = MessageDefinitions.StopSession(0, 0, 0, 0)
+                self.message_queue.put(end_message)
+                self.disconnect()
+                return None
+
+        if message_bytes is None:
+            return None
 
         try:
             deserialised_message = Serialisation.Serialiser.deserialise_message(message_bytes)
         except ValueError:
-            # todo disconnect?
+            self.disconnect()
             return None
 
         return deserialised_message
@@ -75,7 +89,7 @@ class ChannelToServer(BaseChannel):
         self.connection = Connection.ConnectionToServer("", local_port)
 
     def establish_connection(self, target_ip, target_port):
-        self.connection.connect_to_remote(target_ip, target_port)
+        return self.connection.connect_to_remote(target_ip, target_port)
 
 
 class ChannelToClient(BaseChannel):
@@ -83,4 +97,4 @@ class ChannelToClient(BaseChannel):
         self.connection = Connection.ConnectionToClient(local_socket)
 
     def establish_connection(self):
-        self.connection.wait_for_connection()
+        return self.connection.wait_for_connection()
