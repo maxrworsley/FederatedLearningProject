@@ -70,7 +70,6 @@ class ClientSessionManager(BaseSessionManager):
             print("Could not establish connection to server. Stopping.")
             return False
         super().start()
-        print("Client done.")
 
 
 class ServerSessionManager(BaseSessionManager):
@@ -89,4 +88,3 @@ class ServerSessionManager(BaseSessionManager):
             print("Could not establish connection to client. Stopping.")
             return False
         super().start()
-        print("Server done.")
