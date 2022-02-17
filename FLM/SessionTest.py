@@ -23,16 +23,10 @@ class SessionManagerTests(unittest.TestCase):
         server_thread.start()
         client_thread.start()
 
-        c_send_queue.put(MessageDefinitions.BaseMessage(0, 0, 0, 0))
-
-        message = None
-        while message is None:
-            try:
-                message = s_receive_queue.get()
-            except _queue.Empty:
-                pass
-
-        print(message)
+        c_send_queue.put(MessageDefinitions.BaseMessage(0, 0, 1, 0))
+        self.get_message_from_session(s_receive_queue)
+        s_send_queue.put(MessageDefinitions.BaseMessage(0, 1, 0, 1))
+        self.get_message_from_session(c_receive_queue)
 
         c_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
         client_thread.join()
@@ -40,6 +34,16 @@ class SessionManagerTests(unittest.TestCase):
         self.assertTrue(True)
         new_socket.close()
 
+    @staticmethod
+    def get_message_from_session(receiving_queue):
+        message = None
+        while message is None:
+            try:
+                message = receiving_queue.get(block=False)
+            except _queue.Empty:
+                pass
+
+        print(message)
 
 if __name__ == '__main__':
     unittest.main()

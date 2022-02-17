@@ -16,10 +16,11 @@ class BaseSessionManager:
         self.channel.start_async_receive()
 
         while self.run:
-            print("In loop")
-            time.sleep(0.2)
+            time.sleep(0.5)
             self.send_next_message()
             self.receive_next_message()
+            if self.channel.connection is None:
+                self.stop()
 
     def stop(self):
         self.run = False
@@ -32,7 +33,6 @@ class BaseSessionManager:
             return
 
         if next_message.id == MessageDefinitions.StopSession.id:
-            print("Seen stop session message")
             self.stop()
         else:
             self.channel.send(next_message)
@@ -43,6 +43,10 @@ class BaseSessionManager:
         except _queue.Empty:
             return
         except OSError:
+            self.stop()
+            return
+
+        if next_message.id == MessageDefinitions.StopSession.id:
             self.stop()
             return
 
@@ -62,7 +66,10 @@ class ClientSessionManager(BaseSessionManager):
 
     def start(self):
         self.run = True
-        self.channel.establish_connection(self.remote_ip, self.remote_port)
+        success = self.channel.establish_connection(self.remote_ip, self.remote_port)
+        if not success:
+            print("Could not establish connection to server. Stopping.")
+            return False
         super().start()
 
 
@@ -77,5 +84,8 @@ class ServerSessionManager(BaseSessionManager):
 
     def start(self):
         self.run = True
-        self.channel.establish_connection()
+        success = self.channel.establish_connection()
+        if not success:
+            print("Could not establish connection to client. Stopping.")
+            return False
         super().start()

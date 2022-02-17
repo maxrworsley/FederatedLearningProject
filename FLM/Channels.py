@@ -2,6 +2,7 @@ import socket
 import Connection
 import Serialisation
 import threading
+import MessageDefinitions
 
 
 class BaseChannel:
@@ -15,7 +16,6 @@ class BaseChannel:
         if self.connection:
             self.connection.disconnect()
             self.connection = None
-            print("Disconnected channel")
 
     def set_async_queue(self, queue):
         self.message_queue = queue
@@ -61,8 +61,10 @@ class BaseChannel:
             except socket.timeout:
                 return None
             except OSError:
+                end_message = MessageDefinitions.StopSession(0, 0, 0, 0)
+                self.message_queue.put(end_message)
                 self.disconnect()
-                raise
+                return None
 
         if message_bytes is None:
             return None
