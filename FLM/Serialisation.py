@@ -1,4 +1,3 @@
-import _pickle
 import pickle
 
 
@@ -49,7 +48,7 @@ class Serialiser:
 
         try:
             message_object = pickle.loads(message[2 + header_length:])
-        except _pickle.UnpicklingError:
+        except pickle.UnpicklingError:
             raise ValueError('Could not deserialise')
 
         return message_object
