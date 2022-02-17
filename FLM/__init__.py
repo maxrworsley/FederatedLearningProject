@@ -1,3 +1,3 @@
+import Connection
 import MessageDefinitions
 import Serialisation
-import Connection

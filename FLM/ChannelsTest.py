@@ -1,11 +1,12 @@
 import _queue
+import queue
+import threading
 import time
 import unittest
+
 import Channels
 import Connection
 import MessageDefinitions
-import threading
-import queue
 
 
 class ChannelUsage(unittest.TestCase):

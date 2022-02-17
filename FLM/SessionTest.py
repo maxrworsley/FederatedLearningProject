@@ -1,12 +1,11 @@
 import _queue
-import time
-
-import MessageDefinitions
-import unittest
-import Session
 import queue
-import Connection
 import threading
+import unittest
+
+import Connection
+import MessageDefinitions
+import Session
 
 
 class SessionManagerTests(unittest.TestCase):
@@ -15,7 +14,8 @@ class SessionManagerTests(unittest.TestCase):
         c_send_queue, c_receive_queue = queue.Queue(), queue.Queue()
         s_send_queue, s_receive_queue = queue.Queue(), queue.Queue()
         new_socket = Connection.get_new_server_socket("", s_sock_num)
-        client_session = Session.ClientSessionManager(c_send_queue, c_receive_queue, s_sock_num + 1, "127.0.0.1", s_sock_num)
+        client_session = Session.ClientSessionManager(c_send_queue, c_receive_queue, s_sock_num + 1, "127.0.0.1",
+                                                      s_sock_num)
         server_session = Session.ServerSessionManager(s_send_queue, s_receive_queue, new_socket)
 
         client_thread = threading.Thread(target=client_session.start)
@@ -64,8 +64,10 @@ class SessionManagerTests(unittest.TestCase):
         s1_send_queue, s1_receive_queue = queue.Queue(), queue.Queue()
         s2_send_queue, s2_receive_queue = queue.Queue(), queue.Queue()
         new_socket = Connection.get_new_server_socket("", s_sock_num)
-        client_session_1 = Session.ClientSessionManager(c1_send_queue, c1_receive_queue, s_sock_num + 1, "127.0.0.1", s_sock_num)
-        client_session_2 = Session.ClientSessionManager(c2_send_queue, c2_receive_queue, s_sock_num + 2, "127.0.0.1", s_sock_num)
+        client_session_1 = Session.ClientSessionManager(c1_send_queue, c1_receive_queue, s_sock_num + 1, "127.0.0.1",
+                                                        s_sock_num)
+        client_session_2 = Session.ClientSessionManager(c2_send_queue, c2_receive_queue, s_sock_num + 2, "127.0.0.1",
+                                                        s_sock_num)
         server_session_1 = Session.ServerSessionManager(s1_send_queue, s1_receive_queue, new_socket)
         server_session_2 = Session.ServerSessionManager(s2_send_queue, s2_receive_queue, new_socket)
 

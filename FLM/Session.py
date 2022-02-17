@@ -1,7 +1,8 @@
 import _queue
 import queue
-import Channels
 import time
+
+import Channels
 from FLM import MessageDefinitions
 
 

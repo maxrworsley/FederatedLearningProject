@@ -1,8 +1,9 @@
 import socket
-import Connection
-import Serialisation
 import threading
+
+import Connection
 import MessageDefinitions
+import Serialisation
 
 
 class BaseChannel:

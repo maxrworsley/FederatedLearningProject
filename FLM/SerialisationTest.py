@@ -1,7 +1,8 @@
 import _pickle
 import unittest
-from Serialisation import Serialiser as s
+
 import MessageDefinitions as md
+from Serialisation import Serialiser as s
 
 
 class TestStandardMessage(unittest.TestCase):
