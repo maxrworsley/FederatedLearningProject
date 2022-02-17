@@ -32,10 +32,9 @@ class BaseSessionManager:
         except _queue.Empty:
             return
 
+        self.channel.send(next_message)
         if next_message.id == MessageDefinitions.StopSession.id:
             self.stop()
-        else:
-            self.channel.send(next_message)
 
     def receive_next_message(self):
         try:
@@ -71,6 +70,7 @@ class ClientSessionManager(BaseSessionManager):
             print("Could not establish connection to server. Stopping.")
             return False
         super().start()
+        print("Client done.")
 
 
 class ServerSessionManager(BaseSessionManager):
@@ -89,3 +89,4 @@ class ServerSessionManager(BaseSessionManager):
             print("Could not establish connection to client. Stopping.")
             return False
         super().start()
+        print("Server done.")

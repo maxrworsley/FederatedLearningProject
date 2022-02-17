@@ -11,9 +11,9 @@ import threading
 
 class SessionManagerTests(unittest.TestCase):
     def test_session_connection(self):
+        s_sock_num = 40400
         c_send_queue, c_receive_queue = queue.Queue(), queue.Queue()
         s_send_queue, s_receive_queue = queue.Queue(), queue.Queue()
-        s_sock_num = 40400
         new_socket = Connection.get_new_server_socket("", s_sock_num)
         client_session = Session.ClientSessionManager(c_send_queue, c_receive_queue, s_sock_num + 1, "127.0.0.1", s_sock_num)
         server_session = Session.ServerSessionManager(s_send_queue, s_receive_queue, new_socket)
@@ -30,12 +30,12 @@ class SessionManagerTests(unittest.TestCase):
         new_socket.close()
 
     def test_session_send(self):
+        s_sock_num = 40402
         c_send_queue, c_receive_queue = queue.Queue(), queue.Queue()
         s_send_queue, s_receive_queue = queue.Queue(), queue.Queue()
-        s_sock_num = 40402
         new_socket = Connection.get_new_server_socket("", s_sock_num)
-        client_session = Session.ClientSessionManager(c_send_queue, c_receive_queue, s_sock_num + 1, "127.0.0.1",
-                                                      s_sock_num)
+        client_session = Session.ClientSessionManager(c_send_queue, c_receive_queue,
+                                                      s_sock_num + 1, "127.0.0.1", s_sock_num)
         server_session = Session.ServerSessionManager(s_send_queue, s_receive_queue, new_socket)
 
         client_thread = threading.Thread(target=client_session.start)
@@ -67,6 +67,7 @@ class SessionManagerTests(unittest.TestCase):
                 pass
 
         return message
+
 
 if __name__ == '__main__':
     unittest.main()
