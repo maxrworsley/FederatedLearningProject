@@ -107,7 +107,7 @@ class ConnectionToClient(Connection):
                 self.connection, self.remote_address = self.socket.accept()
                 if self.connection:
                     return True
-            except socket.timeout:
+            except timeout:
                 time.sleep(1)
 
         return False
