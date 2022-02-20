@@ -10,7 +10,7 @@ class TensorflowHandler:
     test_labels = None
     model = None
     history = []
-
+    # todo copy this stuff over so the client can test training a model inside the docker container
     def __init__(self, name, datawrapper):
         self.name = name
         self.data_wrapper = datawrapper
