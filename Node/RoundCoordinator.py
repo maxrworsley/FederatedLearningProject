@@ -1,6 +1,7 @@
 from FLM import MessageDefinitions
 from FLM import Session
 from ModelTrainer import ModelTrainer
+import ClientTensorflowHandler
 
 import threading
 import queue
@@ -10,6 +11,7 @@ class RoundCoordinator:
     send_q = None
     receive_q = None
     configuration_manager = None
+    tensorflow_manager = None
     client_session = None
     client_thread = None
 
@@ -35,9 +37,12 @@ class RoundCoordinator:
         self.client_thread.join()
 
     def train(self):
-        model_trainer = ModelTrainer()
+        tf_handler = ClientTensorflowHandler.TensorflowHandler()
 
         message = self.receive_q.get(block=True)
-        model_trainer.train(message, self.configuration_manager.file_path)
+        if message.id != MessageDefinitions.RequestTrainModel.id:
+            return False
+
+        tf_handler.train(self.configuration_manager.file_path)
         self.send_q.put(MessageDefinitions.ResponseJoinRound(0, 0, 0, 0))
         return True
