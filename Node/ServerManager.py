@@ -1,6 +1,7 @@
-from FLM import Session
 import threading
+
 from FLM import MessageDefinitions
+from FLM import Session
 
 
 class ServerManager:

@@ -3,7 +3,6 @@ from sys import argv
 import ConfigurationManager
 import Node
 
-
 if __name__ == '__main__':
     config_manager = ConfigurationManager.ConfigurationManger()
     config_manager.parse_options(argv)

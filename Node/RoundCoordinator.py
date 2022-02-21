@@ -1,7 +1,8 @@
+import queue
+
+import ClientTensorflowHandler
 from FLM import MessageDefinitions
 from ServerManager import ServerManager
-import ClientTensorflowHandler
-import queue
 
 
 class RoundCoordinator:
