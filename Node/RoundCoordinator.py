@@ -1,9 +1,6 @@
 from FLM import MessageDefinitions
-from FLM import Session
-from ModelTrainer import ModelTrainer
+from ServerManager import ServerManager
 import ClientTensorflowHandler
-
-import threading
 import queue
 
 
@@ -12,29 +9,25 @@ class RoundCoordinator:
     receive_q = None
     configuration_manager = None
     tensorflow_manager = None
-    client_session = None
-    client_thread = None
 
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
+        self.send_q, self.receive_q = queue.Queue(), queue.Queue()
+        self.server_manager = ServerManager(self.send_q, self.receive_q)
 
     def start_round(self):
-        self.send_q, self.receive_q = queue.Queue(), queue.Queue()
-        self.client_session = Session.ClientSessionManager(self.send_q, self.receive_q, 40401, "172.17.0.1", 40400)
-        self.client_thread = threading.Thread(target=self.client_session.start)
-        self.client_thread.start()
-
+        self.server_manager.start()
         success = self.train()
+
         self.stop_round(success)
 
     def stop_round(self, round_success):
         if round_success:
             print("Completed training successfully. Disconnecting")
         else:
-            print("Training did not complete successfully")
+            print("Training did not complete successfully. Disconnecting")
 
-        self.send_q.put(MessageDefinitions.StopSession(0, 0, 0, 0))
-        self.client_thread.join()
+        self.server_manager.stop()
 
     def train(self):
         tf_handler = ClientTensorflowHandler.TensorflowHandler()
