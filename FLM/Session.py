@@ -1,8 +1,7 @@
-import _queue
 import queue
 import time
 
-import Channels
+from FLM import Channels
 from FLM import MessageDefinitions
 
 
@@ -30,7 +29,7 @@ class BaseSessionManager:
     def send_next_message(self):
         try:
             next_message = self.send_queue.get(block=False)
-        except _queue.Empty:
+        except queue.Empty:
             return
 
         self.channel.send(next_message)
@@ -40,7 +39,7 @@ class BaseSessionManager:
     def receive_next_message(self):
         try:
             next_message = self.channel_receive_queue.get(block=False)
-        except _queue.Empty:
+        except queue.Empty:
             return
         except OSError:
             self.stop()

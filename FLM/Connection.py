@@ -1,4 +1,4 @@
-import _socket
+import socket
 import time
 from socket import *
 
@@ -107,7 +107,7 @@ class ConnectionToClient(Connection):
                 self.connection, self.remote_address = self.socket.accept()
                 if self.connection:
                     return True
-            except _socket.timeout:
+            except timeout:
                 time.sleep(1)
 
         return False

@@ -1,4 +1,3 @@
-import _queue
 import queue
 import threading
 import unittest
@@ -105,7 +104,7 @@ class SessionManagerTests(unittest.TestCase):
         while message is None:
             try:
                 message = receiving_queue.get(block=False)
-            except _queue.Empty:
+            except queue.Empty:
                 pass
 
         return message

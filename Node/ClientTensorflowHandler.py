@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class TensorflowHandler:
@@ -10,21 +9,11 @@ class TensorflowHandler:
     test_labels = None
     model = None
     history = []
-    # todo copy this stuff over so the client can test training a model inside the docker container
+
     def __init__(self, name, datawrapper):
         self.name = name
         self.data_wrapper = datawrapper
         print(f'Tensorflow handler created.')
-
-    @staticmethod
-    def plot_loss(history):
-        plt.plot(history.history['loss'], label='loss')
-        plt.plot(history.history['val_loss'], label='val_loss')
-        plt.ylim([0, 1])
-        plt.xlabel('Epoch')
-        plt.ylabel('Error [target]')
-        plt.legend()
-        plt.grid(True)
 
     def get_data(self):
         dataset = self.data_wrapper.get_data()
@@ -54,6 +43,13 @@ class TensorflowHandler:
         )
 
     def fit_model(self, epochs, plot_history=False):
+        pre_loss = self.model.evaluate(
+            self.test_features,
+            self.test_labels,
+            verbose=0
+        )
+        print(f"Model before training has loss {pre_loss}")
+
         history = self.model.fit(
             self.training_features,
             self.training_labels,
@@ -61,9 +57,14 @@ class TensorflowHandler:
             verbose=0,
             validation_split=0.2
         )
+        post_loss = self.model.evaluate(
+            self.test_features,
+            self.test_labels,
+            verbose=0
+        )
+        print(f"Post loss = {post_loss}")
 
         self.history.append(history)
 
         if plot_history:
-            self.plot_loss(history)
-            plt.show()
+            print("Would print history if matplotlib was installed")
