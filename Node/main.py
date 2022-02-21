@@ -1,5 +1,6 @@
 import queue
 import threading
+from sys import argv
 
 from FLM import Session
 from FLM import MessageDefinitions
@@ -14,12 +15,12 @@ def setup(send_queue, receive_queue):
     return client_session, client_thread
 
 
-def do_training(send_q, receive_q):
+def do_training(data_filepath, send_q, receive_q):
     message = receive_q.get(block=True)
     if message.id != MessageDefinitions.RequestTrainModel.id:
         return False
 
-    data_wrapper = DataWrapper.DataWrapper("/home/FLS/Node/data.csv")
+    data_wrapper = DataWrapper.DataWrapper(data_filepath)
     tf_handler = ClientTensorflowHandler.TensorflowHandler("Client_TF_Handler", data_wrapper)
     tf_handler.get_data()
     tf_handler.create_model()
@@ -29,10 +30,10 @@ def do_training(send_q, receive_q):
     return True
 
 
-def start():
+def start(filepath):
     send_queue, receive_queue = queue.Queue(), queue.Queue()
     client_session, client_thread = setup(send_queue, receive_queue)
-    success = do_training(send_queue, receive_queue)
+    success = do_training(filepath, send_queue, receive_queue)
 
     if success:
         print("Completed training successfully. Disconnecting")
@@ -44,5 +45,11 @@ def start():
 
 
 if __name__ == '__main__':
-    print("Running tensorflow and FLM test")
-    start()
+    run_on_desktop = False
+    file_path = "/home/FLS/Node/data.csv"
+    if len(argv) > 1:
+        if argv[1] == "-d" or argv[1] == "-D":
+            run_on_desktop = True
+            file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
+    print(f"Running tensorflow and FLM with run_on_desktop set to {run_on_desktop}")
+    start(file_path)
