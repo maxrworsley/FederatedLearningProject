@@ -31,8 +31,9 @@ class ServerManager:
         self.send_queue.put(message)
 
     def get_next_message(self):
-        new_message = self.receive_queue.get(block=False)
-        if new_message is None:
+        try:
+            new_message = self.receive_queue.get(block=False)
+        except queue.Empty:
             return None
 
         if new_message.id == MessageDefinitions.ResponseJoinRound.id:

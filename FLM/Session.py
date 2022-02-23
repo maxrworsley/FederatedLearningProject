@@ -32,7 +32,7 @@ class BaseSessionManager:
         except queue.Empty:
             return
 
-        next_message.time_sent = time.time_ns()
+        next_message.time_sent = time.time()
         self.channel.send(next_message)
         if next_message.id == MessageDefinitions.StopSession.id:
             self.stop()

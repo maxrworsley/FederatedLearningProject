@@ -1,4 +1,5 @@
 import threading
+import time
 
 from FLM import Session
 from FLM import MessageDefinitions
@@ -24,7 +25,12 @@ class Coordinator:
         server_thread = threading.Thread(target=server_session.start)
         server_thread.start()
 
-        send_queue.put(MessageDefinitions.RequestTrainModel(0, 0, 0, 0))
+        send_message = MessageDefinitions.RequestTrainModel()
+        send_message.sender_id = 1
+        send_message.round_id = 1
+        send_message.receiver_id = 3
+        send_message.time_sent = time.time()
+        send_queue.put(send_message)
 
         message_received = receive_queue.get(block=True)
         print(message_received)
