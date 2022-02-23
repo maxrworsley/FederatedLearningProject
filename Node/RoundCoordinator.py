@@ -6,15 +6,12 @@ from ServerManager import ServerManager
 
 
 class RoundCoordinator:
-    send_q = None
-    receive_q = None
     configuration_manager = None
     tensorflow_manager = None
 
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
-        self.send_q, self.receive_q = queue.Queue(), queue.Queue()
-        self.server_manager = ServerManager(self.send_q, self.receive_q)
+        self.server_manager = ServerManager()
 
     def start_round(self):
         self.server_manager.start()
@@ -32,11 +29,13 @@ class RoundCoordinator:
 
     def train(self):
         tf_handler = ClientTensorflowHandler.TensorflowHandler()
+        message = None
+        while message is None:
+            message = self.server_manager.get_next_message()
 
-        message = self.receive_q.get(block=True)
         if message.id != MessageDefinitions.RequestTrainModel.id:
             return False
 
         tf_handler.train(self.configuration_manager.file_path)
-        self.send_q.put(MessageDefinitions.ResponseJoinRound(0, 0, 0, 0))
+        self.server_manager.send_message(MessageDefinitions.ResponseJoinRound(0, 0, 0, 0))
         return True
