@@ -62,7 +62,7 @@ class BaseChannel:
             except socket.timeout:
                 return None
             except OSError:
-                end_message = MessageDefinitions.StopSession(0, 0, 0, 0)
+                end_message = MessageDefinitions.StopSession()
                 self.message_queue.put(end_message)
                 self.disconnect()
                 return None

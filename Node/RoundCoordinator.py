@@ -37,5 +37,5 @@ class RoundCoordinator:
             return False
 
         tf_handler.train(self.configuration_manager.file_path)
-        self.server_manager.send_message(MessageDefinitions.ResponseJoinRound(0, 0, 0, 0))
+        self.server_manager.send_message(MessageDefinitions.ResponseJoinRound())
         return True

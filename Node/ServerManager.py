@@ -44,5 +44,5 @@ class ServerManager:
         return new_message
 
     def stop(self):
-        self.send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
+        self.send_message(MessageDefinitions.StopSession())
         self.client_thread.join()
