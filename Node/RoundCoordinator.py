@@ -1,8 +1,7 @@
-import queue
 import time
 
 import ClientTensorflowHandler
-from FLM import MessageDefinitions
+from FLM import MessageDefinitions as msg
 from ServerManager import ServerManager
 
 
@@ -27,10 +26,10 @@ class RoundCoordinator:
         joined = False
 
         while not joined and self.keep_running:
-            join_round_message = MessageDefinitions.RequestJoinRound()
+            join_round_message = msg.RequestJoinRound()
             self.server_manager.send_message(join_round_message)
             message = self.get_message()
-            if message.id != MessageDefinitions.ResponseJoinRound.id:
+            if message.id != msg.ResponseJoinRound.id:
                 return
 
             if message.accepted_into_round:
@@ -41,23 +40,31 @@ class RoundCoordinator:
     def wait_for_model(self):
         if not self.keep_running:
             return
-
+        
+        message = self.get_message()
+        m_id = message.id
+        if m_id == msg.RequestTrainModel.id:
+            self.tensorflow_manager.received_bytes = message.checkpoint_bytes
+        else:
+            self.handle_exceptional_message(message)
+        
     def train_model(self):
         if not self.keep_running:
             return
-
+        # todo rewrite for new scheme
         tf_handler = ClientTensorflowHandler.TensorflowHandler()
 
         message = self.get_message()
-        if message.id != MessageDefinitions.RequestTrainModel.id:
+        if message.id != msg.RequestTrainModel.id:
             return False
 
         tf_handler.train(self.configuration_manager.file_path)
-        self.server_manager.send_message(MessageDefinitions.ResponseJoinRound())
+        self.server_manager.send_message(msg.ResponseJoinRound())
         return True
 
     def stop_round(self):
         print("Completed training. Disconnecting")
+        self.keep_running = False
         self.server_manager.stop()
 
     def get_message(self):
@@ -66,3 +73,17 @@ class RoundCoordinator:
             message = self.server_manager.get_next_message()
 
         return message
+
+    def handle_exceptional_message(self, message):
+        message_id = message.id
+        if message_id == msg.StopSession.id:
+            self.stop_round()
+        elif message_id == msg.CheckConnection.id:
+            response = msg.CheckConnectionResponse()
+            self.server_manager.send_message(response)
+        elif message_id == msg.RoundCancelled.id:
+            self.stop_round()
+        else:
+            print("Received message that couldn't be handled. Stopping")
+            print(message)
+

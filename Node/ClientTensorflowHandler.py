@@ -3,6 +3,8 @@ from ModelTrainer import ModelTrainer
 
 
 class TensorflowHandler:
+    received_bytes = None
+
     def train(self, filepath):
         data_wrapper = DataWrapper.DataWrapper(filepath)
         model_trainer = ModelTrainer(data_wrapper)
