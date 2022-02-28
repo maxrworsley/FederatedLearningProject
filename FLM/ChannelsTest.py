@@ -30,7 +30,8 @@ class ChannelUsage(unittest.TestCase):
 
         self.connect_client_server(server_channel_to_client, client_channel_to_server, server_port)
 
-        sent_message = MessageDefinitions.BaseMessage(1, 1, 0, 12000)
+        sent_message = MessageDefinitions.BaseMessage()
+        sent_message.time_sent = 123
         client_channel_to_server.send(sent_message)
         received_message = server_channel_to_client.sync_receive()
 
@@ -44,9 +45,12 @@ class ChannelUsage(unittest.TestCase):
 
         self.connect_client_server(server_channel_to_client, client_channel_to_server, server_port)
 
-        sent_message_1 = MessageDefinitions.BaseMessage(1, 1, 0, 1)
-        sent_message_2 = MessageDefinitions.BaseMessage(1, 1, 0, 2)
-        sent_message_3 = MessageDefinitions.BaseMessage(1, 1, 0, 3)
+        sent_message_1 = MessageDefinitions.BaseMessage()
+        sent_message_1.time_sent = 1
+        sent_message_2 = MessageDefinitions.BaseMessage()
+        sent_message_2.time_sent = 2
+        sent_message_3 = MessageDefinitions.BaseMessage()
+        sent_message_3.time_sent = 3
 
         server_message_queue = queue.Queue()
         server_channel_to_client.set_async_queue(server_message_queue)

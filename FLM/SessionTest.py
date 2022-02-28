@@ -22,7 +22,7 @@ class SessionManagerTests(unittest.TestCase):
         server_thread.start()
         client_thread.start()
 
-        c_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
+        c_send_queue.put(MessageDefinitions.StopSession())
         client_thread.join()
         server_thread.join()
         self.assertTrue(True)
@@ -42,14 +42,14 @@ class SessionManagerTests(unittest.TestCase):
         server_thread.start()
         client_thread.start()
 
-        first_message_sent = MessageDefinitions.BaseMessage(0, 0, 1, 0)
+        first_message_sent = MessageDefinitions.BaseMessage()
         c_send_queue.put(first_message_sent)
         first_message_received = self.get_message_from_session(s_receive_queue)
-        second_message_sent = MessageDefinitions.BaseMessage(0, 1, 0, 1)
+        second_message_sent = MessageDefinitions.BaseMessage()
         s_send_queue.put(second_message_sent)
         second_message_received = self.get_message_from_session(c_receive_queue)
 
-        c_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
+        c_send_queue.put(MessageDefinitions.StopSession())
         client_thread.join(timeout=3)
         server_thread.join(timeout=3)
         self.assertTrue(first_message_sent.__repr__() == first_message_received.__repr__())
@@ -84,8 +84,8 @@ class SessionManagerTests(unittest.TestCase):
         # c2_send_queue.put(MessageDefinitions.BaseMessage(0, 2, 0, 2))
         # c2_send_queue.put(MessageDefinitions.BaseMessage(0, 2, 0, 3))
 
-        s1_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
-        s2_send_queue.put(MessageDefinitions.StopSession(0, 0, 0, 0))
+        s1_send_queue.put(MessageDefinitions.StopSession())
+        s2_send_queue.put(MessageDefinitions.StopSession())
 
         client1_thread.join(timeout=3)
         client2_thread.join(timeout=3)
