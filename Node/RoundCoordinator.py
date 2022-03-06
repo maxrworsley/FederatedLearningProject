@@ -24,19 +24,21 @@ class RoundCoordinator:
         self.stop_round()
 
     def join_round(self):
+        self.server_manager.send_message(msg.RequestJoinRound())
         while self.keep_running:
-            join_round_message = msg.RequestJoinRound()
-            self.server_manager.send_message(join_round_message)
             message = self.get_message()
+
             if message.id != msg.ResponseJoinRound.id:
                 print("Received an unexpected reply from request to join round")
                 print(message)
+                self.keep_running = False
                 return
 
+            print(message.accepted_into_round)
             if message.accepted_into_round:
                 return
 
-            time.sleep(1)
+            time.sleep(0.5)
 
     def wait_for_model(self):
         while self.keep_running:

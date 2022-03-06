@@ -35,7 +35,7 @@ class RequestJoinRound(BaseMessage):
 
 class ResponseJoinRound(BaseMessage):
     id = 6
-    accepted_into_round = False
+    accepted_into_round = True
     heartbeat_interval = 5
 
 
