@@ -24,27 +24,22 @@ class RoundCoordinator:
         self.stop_round()
 
     def join_round(self):
-        self.server_manager.send_message(msg.RequestJoinRound())
         while self.keep_running:
-            message = self.get_message()
+            self.server_manager.send_message(msg.RequestJoinRound())
 
-            if message.id != msg.ResponseJoinRound.id:
-                self.handle_exceptional_message(message)
-
-            if message.accepted_into_round:
+            join_message = self.handle_messages(msg.ResponseJoinRound.id)
+            if join_message.accepted_into_round:
                 return
 
-            time.sleep(0.5)
+            time.sleep(1)
 
     def wait_for_model(self):
-        while self.keep_running:
-            message = self.get_message()
-            m_id = message.id
-            if m_id == msg.RequestTrainModel.id:
-                self.tensorflow_manager.received_bytes = message.checkpoint_bytes
-                break
-            else:
-                self.handle_exceptional_message(message)
+        train_message = self.handle_messages(msg.RequestTrainModel.id)
+        if train_message:
+            self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
+            return
+
+        self.keep_running = False
 
     def train_model(self):
         self.tensorflow_manager.train(self.configuration_manager.file_path)
@@ -62,14 +57,24 @@ class RoundCoordinator:
 
         return message
 
+    def handle_messages(self, target_id):
+        while self.keep_running:
+            message = self.get_message()
+
+            if message.id == target_id:
+                return message
+
+            self.handle_exceptional_message(message)
+        return None
+
     def handle_exceptional_message(self, message):
-        message_id = message.id
-        if message_id == msg.StopSession.id:
+        m_id = message.id
+        if m_id == msg.StopSession.id:
             self.stop_round()
-        elif message_id == msg.CheckConnection.id:
+        elif m_id == msg.CheckConnection.id:
             response = msg.CheckConnectionResponse()
             self.server_manager.send_message(response)
-        elif message_id == msg.RoundCancelled.id:
+        elif m_id == msg.RoundCancelled.id:
             self.stop_round()
         else:
             print("Received message that couldn't be handled. Stopping")
