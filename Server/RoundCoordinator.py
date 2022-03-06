@@ -28,13 +28,12 @@ class Coordinator:
         accepted_into_round_message = self.add_message_attributes(MessageDefinitions.ResponseJoinRound())
         send_queue.put(accepted_into_round_message)
 
-        # Receive request train model
-        request_train_model = receive_queue.get(block=True)
-        print(request_train_model)
-        model_message = self.add_message_attributes(MessageDefinitions.ResponseTrainModel())
+        print("Sending train model message")
+        model_message = self.add_message_attributes(MessageDefinitions.RequestTrainModel())
         send_queue.put(model_message)
 
         # Receive model back
+        print("Waiting for the model to be returned")
         model_received = receive_queue.get(block=True)
         print(model_received)
 

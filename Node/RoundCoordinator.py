@@ -29,12 +29,8 @@ class RoundCoordinator:
             message = self.get_message()
 
             if message.id != msg.ResponseJoinRound.id:
-                print("Received an unexpected reply from request to join round")
-                print(message)
-                self.keep_running = False
-                return
+                self.handle_exceptional_message(message)
 
-            print(message.accepted_into_round)
             if message.accepted_into_round:
                 return
 
@@ -49,16 +45,10 @@ class RoundCoordinator:
                 break
             else:
                 self.handle_exceptional_message(message)
-        
+
     def train_model(self):
-        while self.keep_running:
-            message = self.get_message()
-            if message.id == msg.RequestTrainModel.id:
-                self.tensorflow_manager.train(self.configuration_manager.file_path)
-                self.server_manager.send_message(msg.ResponseJoinRound())
-                break
-            else:
-                self.handle_exceptional_message(message)
+        self.tensorflow_manager.train(self.configuration_manager.file_path)
+        self.server_manager.send_message(msg.ResponseTrainModel())
 
     def stop_round(self):
         print("Completed training. Disconnecting")
