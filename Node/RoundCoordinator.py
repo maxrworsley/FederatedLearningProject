@@ -13,6 +13,7 @@ class RoundCoordinator:
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
         self.server_manager = ServerManager()
+        self.tensorflow_manager = ClientTensorflowHandler.TensorflowHandler()
 
     def start_round(self):
         self.keep_running = True
@@ -23,13 +24,13 @@ class RoundCoordinator:
         self.stop_round()
 
     def join_round(self):
-        joined = False
-
-        while not joined and self.keep_running:
+        while self.keep_running:
             join_round_message = msg.RequestJoinRound()
             self.server_manager.send_message(join_round_message)
             message = self.get_message()
             if message.id != msg.ResponseJoinRound.id:
+                print("Received an unexpected reply from request to join round")
+                print(message)
                 return
 
             if message.accepted_into_round:
@@ -38,29 +39,24 @@ class RoundCoordinator:
             time.sleep(1)
 
     def wait_for_model(self):
-        if not self.keep_running:
-            return
-        
-        message = self.get_message()
-        m_id = message.id
-        if m_id == msg.RequestTrainModel.id:
-            self.tensorflow_manager.received_bytes = message.checkpoint_bytes
-        else:
-            self.handle_exceptional_message(message)
+        while self.keep_running:
+            message = self.get_message()
+            m_id = message.id
+            if m_id == msg.RequestTrainModel.id:
+                self.tensorflow_manager.received_bytes = message.checkpoint_bytes
+                break
+            else:
+                self.handle_exceptional_message(message)
         
     def train_model(self):
-        if not self.keep_running:
-            return
-        # todo rewrite for new scheme
-        tf_handler = ClientTensorflowHandler.TensorflowHandler()
-
-        message = self.get_message()
-        if message.id != msg.RequestTrainModel.id:
-            return False
-
-        tf_handler.train(self.configuration_manager.file_path)
-        self.server_manager.send_message(msg.ResponseJoinRound())
-        return True
+        while self.keep_running:
+            message = self.get_message()
+            if message.id == msg.RequestTrainModel.id:
+                self.tensorflow_manager.train(self.configuration_manager.file_path)
+                self.server_manager.send_message(msg.ResponseJoinRound())
+                break
+            else:
+                self.handle_exceptional_message(message)
 
     def stop_round(self):
         print("Completed training. Disconnecting")
@@ -86,4 +82,4 @@ class RoundCoordinator:
         else:
             print("Received message that couldn't be handled. Stopping")
             print(message)
-
+            self.stop_round()
