@@ -66,3 +66,6 @@ class ModelTrainer:
 
         if plot_history:
             print("Would print history if matplotlib was installed")
+
+    def load_model(self, path):
+        self.model = tf.keras.models.load_model(path + '/model')

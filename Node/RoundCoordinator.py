@@ -42,7 +42,7 @@ class RoundCoordinator:
         self.keep_running = False
 
     def train_model(self):
-        self.tensorflow_manager.train(self.configuration_manager.file_path)
+        self.tensorflow_manager.train(self.configuration_manager)
         self.server_manager.send_message(msg.ResponseTrainModel())
 
     def stop_round(self):
