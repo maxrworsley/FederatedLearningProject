@@ -13,7 +13,7 @@ class TensorflowHandler:
         model_trainer.get_data()
         if self.received_bytes:
             cp_handler.save_unpack_checkpoint(self.received_bytes)
-            model_trainer.load_model(cp_handler.get_checkpoint_path())
+            model_trainer.load_model(config.working_directory)
         else:
             model_trainer.create_model()
         model_trainer.fit_model(5)

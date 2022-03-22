@@ -28,8 +28,11 @@ class RoundCoordinator:
             self.server_manager.send_message(msg.RequestJoinRound())
 
             join_message = self.handle_messages(msg.ResponseJoinRound.id)
-            if join_message.accepted_into_round:
-                return
+            if join_message:
+                if join_message.accepted_into_round:
+                    return
+            else:
+                print("Received unexpected response to join round request")
 
             time.sleep(1)
 

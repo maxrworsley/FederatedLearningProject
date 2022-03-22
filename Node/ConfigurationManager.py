@@ -10,4 +10,4 @@ class ConfigurationManger:
                 self.file_path = \
                     "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
                 self.working_directory = \
-                    "/home/max/Documents/FederatedLearning/FederatedLearningProject/node_working_directory"
+                    "/home/max/Documents/FederatedLearning/node_working_directory"

@@ -13,6 +13,7 @@ class CheckpointHandler:
         owd = os.getcwd()
         try:
             os.chdir(self.checkpoint_save_directory)
+            print(f"Moved to {self.checkpoint_save_directory}")
             print(shutil.make_archive("model_checkpoint", "zip", "./model"))
         finally:
             os.chdir(owd)

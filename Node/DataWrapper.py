@@ -12,8 +12,9 @@ class DataWrapper:
         raw_dataset = pd.read_csv(self.data_path, names=column_names,
                                   na_values='#REF!', comment='\t',
                                   sep=',', skipinitialspace=True)
+        normalized_df = (raw_dataset - raw_dataset.min()) / (raw_dataset.max() - raw_dataset.min())
 
-        matched_dataset = self.match_records_to_predictions(raw_dataset.to_numpy())
+        matched_dataset = self.match_records_to_predictions(normalized_df.to_numpy())
         column_names = ['1max_temp', '1min_temp', '1precip',
                         '2max_temp', '2min_temp', '2precip',
                         '3max_temp', '3min_temp', '3precip', 'target']

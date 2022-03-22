@@ -24,12 +24,8 @@ class ModelTrainer:
         self.test_labels = self.test_features.pop('target')
 
     def create_model(self):
-        normalizer = tf.keras.layers.Normalization(axis=-1)
-
-        normalizer.adapt(np.array(self.training_features))
-
         self.model = tf.keras.Sequential([
-            normalizer,
+            tf.keras.layers.Input(shape=(9,)),
             tf.keras.layers.Dense(64, activation='sigmoid'),
             tf.keras.layers.Dense(64, activation='sigmoid'),
             tf.keras.layers.Dense(units=1)
