@@ -46,7 +46,8 @@ class ClientHeartbeat(BaseMessage):
 class RequestTrainModel(BaseMessage):
     id = 8
     checkpoint_bytes = ""
-
+    epochs = 5
+    validation_split = 0.2
 
 class ResponseTrainModel(BaseMessage):
     id = 9
