@@ -36,7 +36,7 @@ class ModelTrainer:
             loss='mean_absolute_error'
         )
 
-    def fit_model(self, epochs, plot_history=False):
+    def fit_model(self, epochs, validation_split, plot_history=False):
         pre_loss = self.model.evaluate(
             self.test_features,
             self.test_labels,

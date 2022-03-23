@@ -40,6 +40,8 @@ class RoundCoordinator:
         train_message = self.handle_messages(msg.RequestTrainModel.id)
         if train_message:
             self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
+            self.tensorflow_manager.training_epochs = train_message.epochs
+            self.tensorflow_manager.validation_split = train_message.validation_split
             return
 
         self.keep_running = False

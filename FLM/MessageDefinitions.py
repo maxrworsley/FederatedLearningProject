@@ -49,6 +49,7 @@ class RequestTrainModel(BaseMessage):
     epochs = 5
     validation_split = 0.2
 
+
 class ResponseTrainModel(BaseMessage):
     id = 9
     checkpoint_bytes = ""
