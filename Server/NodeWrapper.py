@@ -24,5 +24,8 @@ class NodeWrapper:
     def receive(self, block=False):
         return self.receive_queue.get(block=block)
 
+    def stop(self):
+        self.session_thread.join()
+
     def stop_premature(self):
         self.send_queue.put(MessageDefinitions.StopSession())
