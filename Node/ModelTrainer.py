@@ -75,3 +75,6 @@ class ModelTrainer:
         print(f"Post loss = {post_loss}")
 
         self.history.append(history)
+
+    def save_model(self, path):
+        tf.keras.models.save_model(self.model, path)

@@ -10,7 +10,7 @@ class RoundCoordinator:
     configuration_manager = None
     tensorflow_manager = None
     keep_running = True
-    receive_messages = True
+    receive_async_messages = True
 
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
@@ -52,13 +52,15 @@ class RoundCoordinator:
         message_thread = threading.Thread(target=self.async_message_handler)
         message_thread.start()
         self.tensorflow_manager.train(self.configuration_manager)
-        self.receive_messages = False
+        self.receive_async_messages = False
         message_thread.join()
-        self.server_manager.send_message(msg.ResponseTrainModel())
+        response_message = msg.ResponseTrainModel()
+        response_message.checkpoint_bytes = self.tensorflow_manager.get_model_bytes(self.configuration_manager)
+        self.server_manager.send_message(response_message)
 
     def stop_round(self):
         print("Completed training. Disconnecting")
-        self.receive_messages = False
+        self.receive_async_messages = False
         self.keep_running = False
         self.tensorflow_manager.stop_training()
         self.server_manager.stop()
@@ -71,11 +73,11 @@ class RoundCoordinator:
         return message
 
     def async_message_handler(self):
-        self.receive_messages = True
-        while self.receive_messages and self.keep_running:
+        self.receive_async_messages = True
+        while self.receive_async_messages and self.keep_running:
             message = None
 
-            while message is None and self.receive_messages and self.keep_running:
+            while message is None and self.receive_async_messages and self.keep_running:
                 message = self.server_manager.get_next_message()
 
             if message:
