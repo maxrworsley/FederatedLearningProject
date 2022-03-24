@@ -35,7 +35,7 @@ class RequestJoinRound(BaseMessage):
 
 class ResponseJoinRound(BaseMessage):
     id = 6
-    accepted_into_round = False
+    accepted_into_round = True
     heartbeat_interval = 5
 
 
@@ -46,6 +46,8 @@ class ClientHeartbeat(BaseMessage):
 class RequestTrainModel(BaseMessage):
     id = 8
     checkpoint_bytes = ""
+    epochs = 5
+    validation_split = 0.2
 
 
 class ResponseTrainModel(BaseMessage):

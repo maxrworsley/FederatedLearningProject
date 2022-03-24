@@ -1,41 +1,106 @@
-import queue
+import threading
+import time
 
 import ClientTensorflowHandler
-from FLM import MessageDefinitions
+from FLM import MessageDefinitions as msg
 from ServerManager import ServerManager
 
 
 class RoundCoordinator:
     configuration_manager = None
     tensorflow_manager = None
+    keep_running = True
+    receive_messages = True
 
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
         self.server_manager = ServerManager()
+        self.tensorflow_manager = ClientTensorflowHandler.TensorflowHandler()
 
     def start_round(self):
+        self.keep_running = True
         self.server_manager.start()
-        success = self.train()
+        self.join_round()
+        self.wait_for_model()
+        self.train_model()
+        self.stop_round()
 
-        self.stop_round(success)
+    def join_round(self):
+        while self.keep_running:
+            self.server_manager.send_message(msg.RequestJoinRound())
 
-    def stop_round(self, round_success):
-        if round_success:
-            print("Completed training successfully. Disconnecting")
-        else:
-            print("Training did not complete successfully. Disconnecting")
+            join_message = self.handle_messages(msg.ResponseJoinRound.id)
+            if join_message:
+                if join_message.accepted_into_round:
+                    return
+            else:
+                print("Received unexpected response to join round request")
 
+            time.sleep(1)
+
+    def wait_for_model(self):
+        train_message = self.handle_messages(msg.RequestTrainModel.id)
+        if train_message:
+            self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
+            self.tensorflow_manager.training_epochs = train_message.epochs
+            self.tensorflow_manager.validation_split = train_message.validation_split
+            return
+
+        self.keep_running = False
+
+    def train_model(self):
+        message_thread = threading.Thread(target=self.async_message_handler)
+        message_thread.start()
+        self.tensorflow_manager.train(self.configuration_manager)
+        self.receive_messages = False
+        message_thread.join()
+        self.server_manager.send_message(msg.ResponseTrainModel())
+
+    def stop_round(self):
+        print("Completed training. Disconnecting")
+        self.receive_messages = False
+        self.keep_running = False
+        self.tensorflow_manager.stop_training()
         self.server_manager.stop()
 
-    def train(self):
-        tf_handler = ClientTensorflowHandler.TensorflowHandler()
+    def get_message(self):
         message = None
-        while message is None:
+        while message is None and self.keep_running:
             message = self.server_manager.get_next_message()
 
-        if message.id != MessageDefinitions.RequestTrainModel.id:
-            return False
+        return message
 
-        tf_handler.train(self.configuration_manager.file_path)
-        self.server_manager.send_message(MessageDefinitions.ResponseJoinRound())
-        return True
+    def async_message_handler(self):
+        self.receive_messages = True
+        while self.receive_messages and self.keep_running:
+            message = None
+
+            while message is None and self.receive_messages and self.keep_running:
+                message = self.server_manager.get_next_message()
+
+            if message:
+                self.handle_exceptional_message(message)
+
+    def handle_messages(self, target_id):
+        while self.keep_running:
+            message = self.get_message()
+
+            if message.id == target_id:
+                return message
+
+            self.handle_exceptional_message(message)
+        return None
+
+    def handle_exceptional_message(self, message):
+        m_id = message.id
+        if m_id == msg.StopSession.id:
+            self.stop_round()
+        elif m_id == msg.CheckConnection.id:
+            response = msg.CheckConnectionResponse()
+            self.server_manager.send_message(response)
+        elif m_id == msg.RoundCancelled.id:
+            self.stop_round()
+        else:
+            print("Received message that couldn't be handled. Stopping")
+            print(message)
+            self.stop_round()
