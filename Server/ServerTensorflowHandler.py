@@ -17,5 +17,6 @@ class TensorflowHandler:
             loss='mean_absolute_error'
         )
 
-    def save_current_model(self, path):
+    def save_current_model(self, working_directory):
+        path = working_directory + "/model"
         tf.keras.models.save_model(self.model, path)

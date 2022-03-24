@@ -10,18 +10,22 @@ from FLM import CheckpointHandler
 
 class Coordinator:
     tf_handler = None
+    keep_running = True
+    config_manager = None
 
-    def set_handler(self, handler):
-        self.tf_handler = handler
+    def set_handler(self, tf_handler, config_manager):
+        self.tf_handler = tf_handler
+        self.config_manager = config_manager
+
+    def setup(self):
+        pass
 
     def start_round(self):
-        working_directory = "/home/max/Documents/FederatedLearning/server_working_directory"
-        model_save_directory = working_directory + "/model"
-        cp_handler = CheckpointHandler.CheckpointHandler(working_directory)
+        cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory)
 
         print("Starting round")
         send_queue, receive_queue = queue.Queue(), queue.Queue()
-        local_socket = Connection.get_new_server_socket("", 40400)
+        local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         server_session = Session.ServerSessionManager(send_queue, receive_queue, local_socket)
         server_thread = threading.Thread(target=server_session.start)
         server_thread.start()
@@ -36,7 +40,7 @@ class Coordinator:
         print("Sending train model message")
         model_message = self.add_message_attributes(MessageDefinitions.RequestTrainModel())
         self.tf_handler.create_model()
-        self.tf_handler.save_current_model(model_save_directory)
+        self.tf_handler.save_current_model(self.config_manager.working_directory)
         cp_handler.create_checkpoint()
         model_message.checkpoint_bytes = cp_handler.get_saved_checkpoint_bytes()
         send_queue.put(model_message)
@@ -56,3 +60,16 @@ class Coordinator:
         message.round_id = 1
         message.time_sent = time.time()
         return message
+
+    def wait_for_nodes(self):
+        pass
+
+    def send_model(self):
+        pass
+
+    def wait_for_responses(self):
+        pass
+
+    def aggregate_models(self):
+        pass
+
