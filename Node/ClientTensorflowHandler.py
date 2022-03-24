@@ -1,12 +1,15 @@
 import DataWrapper
 from FLM.CheckpointHandler import CheckpointHandler
-from ModelTrainer import ModelTrainer
+from ModelTrainer import ModelTrainer, StopTrainingCallback
 
 
 class TensorflowHandler:
     received_bytes = None
     training_epochs = None
     validation_split = None
+    keep_training = True
+    stopping_callback = None
+    training_thread = None
 
     def train(self, config):
         cp_handler = CheckpointHandler(config.working_directory)
@@ -20,4 +23,9 @@ class TensorflowHandler:
         else:
             model_trainer.create_model()
 
-        model_trainer.fit_model(self.training_epochs, self.validation_split)
+        self.stopping_callback = StopTrainingCallback()
+        model_trainer.fit_model(self.training_epochs, self.validation_split, self.stopping_callback)
+
+    def stop_training(self):
+        if self.stopping_callback:
+            self.stopping_callback.keep_training = False
