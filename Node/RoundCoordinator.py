@@ -55,8 +55,10 @@ class RoundCoordinator:
         self.receive_async_messages = False
         message_thread.join()
         response_message = msg.ResponseTrainModel()
-        response_message.checkpoint_bytes = self.tensorflow_manager.get_model_bytes(self.configuration_manager)
+        response_message.checkpoint_bytes = \
+            self.tensorflow_manager.get_model_bytes_remove_directory(self.configuration_manager)
         self.server_manager.send_message(response_message)
+
 
     def stop_round(self):
         print("Completed training. Disconnecting")

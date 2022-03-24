@@ -57,7 +57,7 @@ class ModelTrainer:
             verbose=0
         )
         print(f"Model before training has loss {pre_loss}")
-
+        print(f"Beginning training with {epochs} epochs and a validation split of {split}.")
         history = self.model.fit(
             self.training_features,
             self.training_labels,

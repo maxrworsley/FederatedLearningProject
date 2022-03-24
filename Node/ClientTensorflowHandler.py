@@ -11,22 +11,22 @@ class TensorflowHandler:
     stopping_callback = None
     training_thread = None
     model_trainer = None
+    checkpoint_handler = None
 
-    def get_model_bytes(self, config):
+    def get_model_bytes_remove_directory(self, config):
         working_path = config.working_directory
         self.model_trainer.save_model(working_path)
-        cp_handler = CheckpointHandler(working_path)
-        cp_handler.create_checkpoint()
-        return cp_handler.get_saved_checkpoint_bytes()
+        self.checkpoint_handler.create_checkpoint()
+        return self.checkpoint_handler.get_saved_checkpoint_bytes()
 
     def train(self, config):
-        cp_handler = CheckpointHandler(config.working_directory)
+        self.checkpoint_handler = CheckpointHandler(config.working_directory)
         data_wrapper = DataWrapper.DataWrapper(config.file_path)
         self.model_trainer = ModelTrainer(data_wrapper)
         self.model_trainer.get_data()
 
         if self.received_bytes:
-            cp_handler.save_unpack_checkpoint(self.received_bytes)
+            self.checkpoint_handler.save_unpack_checkpoint(self.received_bytes)
             self.model_trainer.load_model(config.working_directory)
         else:
             self.model_trainer.create_model()

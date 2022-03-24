@@ -35,3 +35,11 @@ class CheckpointHandler:
     def get_saved_checkpoint_bytes(self):
         with open(self.checkpoint_file_path, "rb") as read_file:
             return read_file.read()
+
+    def __del__(self):
+        # Get directory name
+        try:
+            shutil.rmtree(self.checkpoint_directory)
+        except OSError as e:
+            # Could not delete directory as didn't exist
+            pass
