@@ -58,7 +58,7 @@ class ClientManager:
                         responses[i] = response
 
             time_now = time.time()
-            if time_now - start_time > 5:
+            if time_now - start_time > timeout:
                 within_timeout = False
 
         for i in range(len(self.nodes)):
