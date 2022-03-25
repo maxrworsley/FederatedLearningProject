@@ -31,7 +31,12 @@ class NodeWrapper:
         self.send_queue.put(message)
 
     def receive(self, block=False):
-        return self.receive_queue.get(block=block)
+        try:
+            message = self.receive_queue.get(block=block)
+        except queue.Empty:
+            message = None
+
+        return message
 
     def stop(self):
         self.session_thread.join()

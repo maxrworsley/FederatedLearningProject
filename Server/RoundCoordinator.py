@@ -17,6 +17,7 @@ class Coordinator:
         self.config_manager = config_manager
 
     def setup(self):
+        print("Beginning setup")
         self.cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory)
         self.local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         self.client_manager = ClientManager(self.local_socket)
@@ -31,6 +32,7 @@ class Coordinator:
         self.aggregate_models()
 
     def wait_for_nodes(self):
+        print("Gathering nodes")
         self.client_manager.gather_nodes(1)
 
     def send_model(self):
