@@ -3,7 +3,7 @@ from FLM import MessageDefinitions
 from FLM import Connection
 from FLM import CheckpointHandler
 import NodeWrapper
-
+from ClientManager import ClientManager
 
 class Coordinator:
     tf_handler = None
@@ -12,6 +12,7 @@ class Coordinator:
     cp_handler = None
     local_socket = None
     node = None
+    client_manager = None
 
     def set_handlers(self, tf_handler, config_manager):
         self.tf_handler = tf_handler
@@ -21,6 +22,7 @@ class Coordinator:
         self.cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory)
         self.local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         self.node = NodeWrapper.NodeWrapper(self.local_socket)
+        self.client_manager = ClientManager()
 
     def start_round(self):
         self.setup()
@@ -43,6 +45,7 @@ class Coordinator:
         return message
 
     def wait_for_nodes(self):
+        # todo move node over into client manager
         join_round_request = self.node.receive(block=True)
         print("Responding to join round")
         accepted_into_round_message = self.add_message_attributes(MessageDefinitions.ResponseJoinRound())
