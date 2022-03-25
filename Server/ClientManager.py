@@ -66,3 +66,7 @@ class ClientManager:
                 self.nodes[i].active = False
 
         return responses
+
+    def __del__(self):
+        for node in self.nodes:
+            node.stop()
