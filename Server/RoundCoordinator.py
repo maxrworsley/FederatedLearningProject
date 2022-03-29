@@ -17,7 +17,6 @@ class Coordinator:
         self.config_manager = config_manager
 
     def setup(self):
-        print("Beginning setup")
         self.cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory)
         self.local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         self.client_manager = ClientManager(self.local_socket)
@@ -32,7 +31,6 @@ class Coordinator:
         self.aggregate_models()
 
     def wait_for_nodes(self):
-        print("Gathering nodes")
         self.client_manager.gather_nodes(1)
 
     def send_model(self):
@@ -46,6 +44,11 @@ class Coordinator:
         self.client_manager.send_model_to_nodes(model_message)
 
     def wait_for_responses(self):
+        if not self.client_manager.are_any_active():
+            print("Lost all clients. Stopping")
+            self.keep_running = False
+            return
+
         print("Waiting for the model to be returned")
         models_received = self.client_manager.wait_for_node_models()
         print(models_received)

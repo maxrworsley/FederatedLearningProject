@@ -21,6 +21,7 @@ class RoundCoordinator:
         self.keep_running = True
         self.server_manager.start()
         self.join_round()
+        print("Joined round. Now waiting for model")
         self.wait_for_model()
         self.train_model()
         self.stop_round()
@@ -39,12 +40,14 @@ class RoundCoordinator:
             time.sleep(1)
 
     def wait_for_model(self):
-        train_message = self.handle_messages(msg.RequestTrainModel.id)
-        if train_message:
-            self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
-            self.tensorflow_manager.training_epochs = train_message.epochs
-            self.tensorflow_manager.validation_split = train_message.validation_split
-            return
+        train_message = None
+        while not train_message and self.keep_running:
+            train_message = self.handle_messages(msg.RequestTrainModel.id)
+            if train_message:
+                self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
+                self.tensorflow_manager.training_epochs = train_message.epochs
+                self.tensorflow_manager.validation_split = train_message.validation_split
+                return
 
         self.keep_running = False
 
@@ -58,7 +61,6 @@ class RoundCoordinator:
         response_message.checkpoint_bytes = \
             self.tensorflow_manager.get_model_bytes_remove_directory(self.configuration_manager)
         self.server_manager.send_message(response_message)
-
 
     def stop_round(self):
         print("Completed training. Disconnecting")
@@ -88,7 +90,7 @@ class RoundCoordinator:
     def handle_messages(self, target_id):
         while self.keep_running:
             message = self.get_message()
-
+            print(message)
             if message.id == target_id:
                 return message
 
