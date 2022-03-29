@@ -13,13 +13,17 @@ class ServerManager:
     round_id = -1
     sender_id = -1
     receiver_id = -1
+    config = None
 
-    def __init__(self):
+    def __init__(self, configuration):
         self.send_queue = queue.Queue()
         self.receive_queue = queue.Queue()
+        self.config = configuration
 
     def start(self):
-        self.client_session = Session.ClientSessionManager(self.send_queue, self.receive_queue, 40401, "172.17.0.1", 40400)
+        self.client_session = Session.ClientSessionManager(self.send_queue, self.receive_queue,
+                                                           self.config.local_port,
+                                                           self.config.remote_ip, self.config.remote_port)
         self.client_thread = threading.Thread(target=self.client_session.start)
         self.client_thread.start()
 
