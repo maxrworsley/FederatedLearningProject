@@ -14,7 +14,7 @@ class RoundCoordinator:
 
     def __init__(self, config_manager):
         self.configuration_manager = config_manager
-        self.server_manager = ServerManager()
+        self.server_manager = ServerManager(config_manager)
         self.tensorflow_manager = ClientTensorflowHandler.TensorflowHandler()
 
     def start_round(self):
