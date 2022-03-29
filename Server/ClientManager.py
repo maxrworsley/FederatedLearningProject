@@ -41,7 +41,6 @@ class ClientManager:
         self.send_to_all(model_message)
 
     def wait_for_node_models(self):
-        # todo not receiving model. Node is being marked as inactive. Node is sending respose but server isn't registering it?
         return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=90)
 
     def send_to_all(self, message):
@@ -52,26 +51,20 @@ class ClientManager:
     def receive_from_all(self, target_id, timeout=5):
         responses = [None] * len(self.nodes)
 
-        within_timeout = True
         start_time = time.time()
 
-        while not all(responses) and within_timeout:
+        while not all(responses):
             time.sleep(0.5)
             for i in range(len(self.nodes)):
                 if not responses[i]:
                     response = self.nodes[i].receive(block=False)
                     if response:
-                        print("Response found")
                         if response.id == target_id:
                             responses[i] = response
-                            print(f"Received a message from node {i}. It has id {target_id}.")
-                        else:
-                            print(f"Received a message from node {i}. Wanted message id {target_id} but got {response.id}.")
 
-            time_now = time.time()
-            if time_now - start_time > timeout:
+            if time.time() - start_time > timeout:
                 print("Timeout")
-                within_timeout = False
+                break
 
         for i in range(len(self.nodes)):
             if not responses[i] and self.nodes[i].active:

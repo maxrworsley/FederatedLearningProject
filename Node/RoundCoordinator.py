@@ -21,7 +21,6 @@ class RoundCoordinator:
         self.keep_running = True
         self.server_manager.start()
         self.join_round()
-        print("Joined round. Now waiting for model")
         self.wait_for_model()
         self.train_model()
         self.stop_round()
@@ -90,7 +89,6 @@ class RoundCoordinator:
     def handle_messages(self, target_id):
         while self.keep_running:
             message = self.get_message()
-            print(message)
             if message.id == target_id:
                 return message
 
