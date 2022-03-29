@@ -31,7 +31,7 @@ class Coordinator:
         self.aggregate_models()
 
     def wait_for_nodes(self):
-        self.client_manager.gather_nodes(1)
+        self.client_manager.gather_nodes(2)
 
     def send_model(self):
         print("Sending train model message")
@@ -54,6 +54,7 @@ class Coordinator:
         print(models_received)
 
     def aggregate_models(self):
+        # todo aggregate models
         pass
 
     def __del__(self):
