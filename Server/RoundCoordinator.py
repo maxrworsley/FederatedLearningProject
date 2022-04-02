@@ -1,7 +1,10 @@
+import os
+
 from FLM import MessageDefinitions
 from FLM import Connection
 from FLM import CheckpointHandler
 from ClientManager import ClientManager
+from Aggregation import ModelAggregationHandler
 
 
 class Coordinator:
@@ -9,8 +12,11 @@ class Coordinator:
     keep_running = True
     config_manager = None
     cp_handler = None
+    aggregation_handler = None
     local_socket = None
     client_manager = None
+    models_received_messages = None
+    models_received = []
 
     def set_handlers(self, tf_handler, config_manager):
         self.tf_handler = tf_handler
@@ -28,6 +34,7 @@ class Coordinator:
         self.wait_for_nodes()
         self.send_model()
         self.wait_for_responses()
+        self.unpack_responses()
         self.aggregate_models()
 
     def wait_for_nodes(self):
@@ -50,12 +57,22 @@ class Coordinator:
             return
 
         print("Waiting for the model to be returned")
-        models_received = self.client_manager.wait_for_node_models()
-        print(models_received)
+        self.models_received_messages = self.client_manager.wait_for_node_models()
+        print(self.models_received_messages)
+
+    def unpack_responses(self):
+        received_model_directory = os.path.join(self.config_manager.working_directory, "received_models")
+        for idx, response in enumerate(self.models_received_messages):
+            # Model number n is saved in the format working_directory/received_models/n/model
+            cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
+            cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
+            model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
+            self.models_received.append((model, response.evaluation_loss))
 
     def aggregate_models(self):
-        # todo aggregate models
-        pass
+        self.aggregation_handler = ModelAggregationHandler(self.models_received)
+        selected_model = self.aggregation_handler.aggregate_models()
+        print(selected_model)
 
     def __del__(self):
         self.local_socket.close()
