@@ -48,7 +48,6 @@ class ConnectionToServer(Connection):
         self.socket.settimeout(0.5)
 
         try:
-            self.socket.bind((self.ip, self.port))
             self.socket.connect((remote_ip, remote_port))
         except ConnectionRefusedError:
             return False
