@@ -53,6 +53,7 @@ class RequestTrainModel(BaseMessage):
 class ResponseTrainModel(BaseMessage):
     id = 9
     checkpoint_bytes = ""
+    evaluation_loss = 10
 
 
 class RequestLeaveRound(BaseMessage):

@@ -20,3 +20,7 @@ class TensorflowHandler:
     def save_current_model(self, working_directory):
         path = working_directory + "/model"
         tf.keras.models.save_model(self.model, path)
+
+    @staticmethod
+    def load_model(path):
+        return tf.keras.models.load_model(path)
