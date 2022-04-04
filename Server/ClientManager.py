@@ -67,8 +67,9 @@ class ClientManager:
                         if response.id == target_id:
                             responses[i] = response
 
-            if time.time() - start_time > timeout:
-                print("Timeout")
+            time_elapsed = time.time() - start_time
+            if time_elapsed > timeout:
+                print(f"Timeout while waiting for target message {target_id}.")
                 break
 
         for i in range(len(self.nodes)):
