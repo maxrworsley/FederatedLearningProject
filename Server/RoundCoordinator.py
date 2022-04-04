@@ -63,11 +63,12 @@ class Coordinator:
     def unpack_responses(self):
         received_model_directory = os.path.join(self.config_manager.working_directory, "received_models")
         for idx, response in enumerate(self.models_received_messages):
-            # Model number n is saved in the format working_directory/received_models/n/model
-            cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
-            cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
-            model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
-            self.models_received.append((model, response.evaluation_loss))
+            if response:
+                # Model number n is saved in the format working_directory/received_models/n/model
+                cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
+                cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
+                model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
+                self.models_received.append((model, response.evaluation_loss))
 
     def aggregate_models(self):
         self.aggregation_handler = ModelAggregationHandler(self.models_received)

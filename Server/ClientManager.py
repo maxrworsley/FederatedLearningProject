@@ -19,6 +19,9 @@ class ClientManager:
             new_node.start()
             join_round_request = new_node.receive(self.keep_gathering_nodes)
 
+            if not join_round_request:
+                continue
+
             if self.keep_gathering_nodes:
                 new_node.active = True
                 new_node.sender_id = 0
@@ -41,7 +44,9 @@ class ClientManager:
         self.send_to_all(model_message)
 
     def wait_for_node_models(self):
-        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=90)
+        # todo could make timeout configurable
+
+        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=30)
 
     def send_to_all(self, message):
         for node in self.nodes:

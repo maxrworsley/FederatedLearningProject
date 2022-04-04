@@ -16,6 +16,7 @@ class CheckpointHandler:
         owd = os.getcwd()
         try:
             os.chdir(self.checkpoint_directory)
+            # todo save directory needs to be different depending on the config, since we can have multiple on local
             shutil.make_archive("model_checkpoint", "zip", "./model")
         finally:
             os.chdir(owd)
