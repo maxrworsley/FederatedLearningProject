@@ -36,11 +36,20 @@ class Coordinator:
         self.wait_for_responses()
         self.unpack_responses()
         self.aggregate_models()
+        if not self.keep_running:
+            self.client_manager.stop_prematurely()
 
     def wait_for_nodes(self):
-        self.client_manager.gather_nodes(2)
+        try:
+            self.client_manager.gather_nodes(1)
+        except KeyboardInterrupt:
+            print("Stopping prematurely. Waiting for connections to timeout.")
+            self.keep_running = False
 
     def send_model(self):
+        if not self.keep_running:
+            return
+
         print("Sending train model message")
         model_message = MessageDefinitions.RequestTrainModel()
         self.tf_handler.create_model()
@@ -52,15 +61,24 @@ class Coordinator:
 
     def wait_for_responses(self):
         if not self.client_manager.are_any_active():
-            print("Lost all clients. Stopping")
+            print("No clients connected. Stopping.")
             self.keep_running = False
             return
 
         print("Waiting for the model to be returned")
-        self.models_received_messages = self.client_manager.wait_for_node_models()
-        print(self.models_received_messages)
+        try:
+            self.models_received_messages = self.client_manager.wait_for_node_models()
+        except KeyboardInterrupt:
+            print("Stopping prematurely. Waiting for timeout.")
+            self.keep_running = False
+            return
+        print("Received following messages from clients:")
+        print(self.models_received_messages, "\n")
 
     def unpack_responses(self):
+        if not self.keep_running:
+            return
+
         received_model_directory = os.path.join(self.config_manager.working_directory, "received_models")
         for idx, response in enumerate(self.models_received_messages):
             if response:
@@ -71,9 +89,12 @@ class Coordinator:
                 self.models_received.append((model, response.evaluation_loss))
 
     def aggregate_models(self):
+        if not self.keep_running:
+            return
+
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
-        print(selected_model)
+        print(f"Aggregated model computed. {selected_model}.")
 
     def __del__(self):
         self.local_socket.close()

@@ -79,6 +79,11 @@ class ClientManager:
 
         return responses
 
+    def stop_prematurely(self):
+        for node in self.nodes:
+            node.stop_premature()
+            print("Connection to all nodes terminated")
+
     def __del__(self):
         print("Stopping nodes")
         for node in self.nodes:
