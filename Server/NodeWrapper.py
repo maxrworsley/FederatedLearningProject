@@ -44,4 +44,4 @@ class NodeWrapper:
 
     def stop_premature(self):
         self.send_queue.put(MessageDefinitions.StopSession())
-        self.session_thread.join()
+        self.session_thread.join(timeout=1)
