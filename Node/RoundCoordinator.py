@@ -26,19 +26,24 @@ class RoundCoordinator:
         self.train_model()
         self.stop_round()
 
+    def cancel_callback(self):
+        self.keep_running = False
+
     def join_round(self):
-        while self.keep_running:
-            logging.info("Attempt to connect to server.")
-            self.server_manager.send_message(msg.RequestJoinRound())
+        if not self.keep_running:
+            return
 
-            join_message = self.handle_messages(msg.ResponseJoinRound.id)
-            if join_message:
-                if join_message.accepted_into_round:
-                    return
-            else:
-                logging.info("Received unexpected response to join round request")
+        logging.info("Attempt to join round.")
+        self.server_manager.send_message(msg.RequestJoinRound())
 
-            time.sleep(1)
+        join_message = self.handle_messages(msg.ResponseJoinRound.id)
+        if join_message:
+            if join_message.accepted_into_round:
+                logging.info("Joined round")
+                return
+        else:
+            logging.info("Received unexpected response to join round request")
+
 
     def wait_for_model(self):
         train_message = None
