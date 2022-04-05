@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 
@@ -19,26 +20,34 @@ class RoundCoordinator:
 
     def start_round(self):
         self.keep_running = True
-        self.server_manager.start()
+        self.server_manager.start(self.cancel_callback)
         self.join_round()
         self.wait_for_model()
         self.train_model()
         self.stop_round()
 
+    def cancel_callback(self):
+        self.keep_running = False
+
     def join_round(self):
-        while self.keep_running:
-            self.server_manager.send_message(msg.RequestJoinRound())
+        if not self.keep_running:
+            return
 
-            join_message = self.handle_messages(msg.ResponseJoinRound.id)
-            if join_message:
-                if join_message.accepted_into_round:
-                    return
-            else:
-                print("Received unexpected response to join round request")
+        logging.info("Attempt to join round.")
+        self.server_manager.send_message(msg.RequestJoinRound())
 
-            time.sleep(1)
+        join_message = self.handle_messages(msg.ResponseJoinRound.id)
+        if join_message:
+            if join_message.accepted_into_round:
+                logging.info("Joined round")
+                return
+        else:
+            logging.info("Received unexpected/no response to join round request")
 
     def wait_for_model(self):
+        if not self.keep_running:
+            return
+
         train_message = None
         while not train_message and self.keep_running:
             train_message = self.handle_messages(msg.RequestTrainModel.id)
@@ -51,6 +60,9 @@ class RoundCoordinator:
         self.keep_running = False
 
     def train_model(self):
+        if not self.keep_running:
+            return
+
         message_thread = threading.Thread(target=self.async_message_handler)
         message_thread.start()
         self.tensorflow_manager.train(self.configuration_manager)
@@ -62,7 +74,7 @@ class RoundCoordinator:
         self.server_manager.send_message(response_message)
 
     def stop_round(self):
-        print("Completed training. Disconnecting")
+        logging.info("Completed training. Disconnecting")
         self.receive_async_messages = False
         self.keep_running = False
         self.tensorflow_manager.stop_training()
@@ -89,10 +101,11 @@ class RoundCoordinator:
     def handle_messages(self, target_id):
         while self.keep_running:
             message = self.get_message()
-            if message.id == target_id:
-                return message
+            if message:
+                if message.id == target_id:
+                    return message
 
-            self.handle_exceptional_message(message)
+                self.handle_exceptional_message(message)
         return None
 
     def handle_exceptional_message(self, message):
@@ -105,6 +118,6 @@ class RoundCoordinator:
         elif m_id == msg.RoundCancelled.id:
             self.stop_round()
         else:
-            print("Received message that couldn't be handled. Stopping")
-            print(message)
+            logging.error("Received message that couldn't be handled. Stopping")
+            logging.error(message)
             self.stop_round()

@@ -1,3 +1,4 @@
+import logging
 import queue
 import time
 
@@ -16,7 +17,7 @@ class BaseSessionManager:
         self.channel.start_async_receive()
 
         while self.run:
-            time.sleep(0.5)
+            time.sleep(0.2)
             self.send_next_message()
             self.receive_next_message()
             if self.channel.connection is None:
@@ -64,11 +65,12 @@ class ClientSessionManager(BaseSessionManager):
         self.send_queue = message_send_queue
         self.receive_queue = message_receive_queue
 
-    def start(self):
+    def start(self, cancel_callback):
         self.run = True
         success = self.channel.establish_connection(self.remote_ip, self.remote_port)
         if not success:
-            print("Could not establish connection to server. Stopping.")
+            cancel_callback()
+            logging.warning("Could not establish connection to server.")
             return False
         super().start()
 
@@ -82,10 +84,11 @@ class ServerSessionManager(BaseSessionManager):
         self.send_queue = message_send_queue
         self.receive_queue = message_receive_queue
 
-    def start(self):
+    def start(self, success_callback):
         self.run = True
         success = self.channel.establish_connection()
+        success_callback(success)
         if not success:
-            print("Could not establish connection to client. Stopping.")
+            logging.warning("Could not establish connection to client. Stopping")
             return False
         super().start()

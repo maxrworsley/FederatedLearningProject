@@ -1,4 +1,3 @@
-import _pickle
 import unittest
 
 import MessageDefinitions as md

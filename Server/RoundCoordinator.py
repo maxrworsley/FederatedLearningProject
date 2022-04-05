@@ -1,10 +1,11 @@
+import logging
 import os
 
-from FLM import MessageDefinitions
-from FLM import Connection
-from FLM import CheckpointHandler
-from ClientManager import ClientManager
 from Aggregation import ModelAggregationHandler
+from ClientManager import ClientManager
+from FLM import CheckpointHandler
+from FLM import Connection
+from FLM import MessageDefinitions
 
 
 class Coordinator:
@@ -29,19 +30,29 @@ class Coordinator:
 
     def start_round(self):
         self.setup()
-        print("Starting round")
+        logging.info("Starting round")
 
         self.wait_for_nodes()
         self.send_model()
         self.wait_for_responses()
         self.unpack_responses()
         self.aggregate_models()
+        if not self.keep_running:
+            self.client_manager.stop_prematurely()
 
     def wait_for_nodes(self):
-        self.client_manager.gather_nodes(2)
+        try:
+            self.client_manager.gather_nodes(self.config_manager.node_count)
+        except KeyboardInterrupt:
+            self.client_manager.keep_gathering_nodes = False
+            logging.warning("Stopping prematurely. Waiting for connections to timeout")
+            self.keep_running = False
 
     def send_model(self):
-        print("Sending train model message")
+        if not self.keep_running:
+            return
+
+        logging.info("Sending train model message")
         model_message = MessageDefinitions.RequestTrainModel()
         self.tf_handler.create_model()
         self.tf_handler.save_current_model(self.config_manager.working_directory)
@@ -52,27 +63,42 @@ class Coordinator:
 
     def wait_for_responses(self):
         if not self.client_manager.are_any_active():
-            print("Lost all clients. Stopping")
+            logging.info("No clients connected. Stopping.")
             self.keep_running = False
             return
 
-        print("Waiting for the model to be returned")
-        self.models_received_messages = self.client_manager.wait_for_node_models()
-        print(self.models_received_messages)
+        logging.info("Waiting for the model to be returned")
+
+        try:
+            self.models_received_messages = self.client_manager.wait_for_node_models()
+        except KeyboardInterrupt:
+            logging.warning("Stopping prematurely. Waiting for timeout.")
+            self.keep_running = False
+            return
+
+        logging.info("Received following messages from clients:")
+        logging.info(self.models_received_messages)
 
     def unpack_responses(self):
+        if not self.keep_running:
+            return
+
         received_model_directory = os.path.join(self.config_manager.working_directory, "received_models")
         for idx, response in enumerate(self.models_received_messages):
-            # Model number n is saved in the format working_directory/received_models/n/model
-            cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
-            cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
-            model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
-            self.models_received.append((model, response.evaluation_loss))
+            if response:
+                # Model number n is saved in the format working_directory/received_models/n/model
+                cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
+                cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
+                model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
+                self.models_received.append((model, response.evaluation_loss))
 
     def aggregate_models(self):
+        if not self.keep_running:
+            return
+
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
-        print(selected_model)
+        logging.info(f"Aggregated model computed. {selected_model}.")
 
     def __del__(self):
         self.local_socket.close()

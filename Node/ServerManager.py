@@ -20,11 +20,11 @@ class ServerManager:
         self.receive_queue = queue.Queue()
         self.config = configuration
 
-    def start(self):
+    def start(self, cancel_callback):
         self.client_session = Session.ClientSessionManager(self.send_queue, self.receive_queue,
                                                            self.config.local_port,
                                                            self.config.remote_ip, self.config.remote_port)
-        self.client_thread = threading.Thread(target=self.client_session.start)
+        self.client_thread = threading.Thread(target=self.client_session.start, args=(cancel_callback, ))
         self.client_thread.start()
 
     def send_message(self, message):

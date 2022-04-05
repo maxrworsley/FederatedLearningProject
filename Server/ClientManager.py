@@ -1,6 +1,8 @@
-from FLM import MessageDefinitions
-import NodeWrapper
+import logging
 import time
+
+import NodeWrapper
+from FLM import MessageDefinitions
 
 
 class ClientManager:
@@ -17,7 +19,16 @@ class ClientManager:
         while current_count < target_number and self.keep_gathering_nodes:
             new_node = NodeWrapper.NodeWrapper(self.local_socket)
             new_node.start()
+
+            if not new_node.active:
+                new_node.stop_premature()
+                time.sleep(0.3)
+                continue
+
             join_round_request = new_node.receive(self.keep_gathering_nodes)
+
+            if not join_round_request:
+                continue
 
             if self.keep_gathering_nodes:
                 new_node.active = True
@@ -41,7 +52,9 @@ class ClientManager:
         self.send_to_all(model_message)
 
     def wait_for_node_models(self):
-        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=90)
+        # todo could make timeout configurable
+
+        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=30)
 
     def send_to_all(self, message):
         for node in self.nodes:
@@ -62,19 +75,25 @@ class ClientManager:
                         if response.id == target_id:
                             responses[i] = response
 
-            if time.time() - start_time > timeout:
-                print("Timeout")
+            time_elapsed = time.time() - start_time
+            if time_elapsed > timeout:
+                logging.warning(f"Timeout while waiting for target message {target_id}.")
                 break
 
         for i in range(len(self.nodes)):
             if not responses[i] and self.nodes[i].active:
                 self.nodes[i].active = False
-                print(f"Lost node due to inactivity. Node id was {self.nodes[i].receiver_id}")
+                logging.warning(f"Lost node due to inactivity. Node id was {self.nodes[i].receiver_id}")
 
         return responses
 
+    def stop_prematurely(self):
+        for node in self.nodes:
+            node.stop_premature()
+            logging.warning("Connection to all nodes terminated")
+
     def __del__(self):
-        print("Stopping nodes")
+        logging.info("Stopping nodes")
         for node in self.nodes:
             node.stop()
-        print("Connection to all nodes terminated")
+        logging.info("Connection to all nodes terminated")
