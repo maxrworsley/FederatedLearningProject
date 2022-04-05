@@ -1,3 +1,5 @@
+import logging
+
 import tensorflow as tf
 
 
@@ -56,8 +58,8 @@ class ModelTrainer:
             self.test_labels,
             verbose=0
         )
-        print(f"Model before training has loss {pre_loss}")
-        print(f"Beginning training with {epochs} epochs and a validation split of {split}.")
+        logging.info(f"Model before training has loss {pre_loss}")
+        logging.info(f"Beginning training with {epochs} epochs and a validation split of {split}.")
         history = self.model.fit(
             self.training_features,
             self.training_labels,
@@ -72,7 +74,7 @@ class ModelTrainer:
             self.test_labels,
             verbose=0
         )
-        print(f"Post loss = {post_loss}")
+        logging.info(f"Post loss = {post_loss}")
 
         self.history.append(history)
 
