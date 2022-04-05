@@ -19,6 +19,12 @@ class ClientManager:
         while current_count < target_number and self.keep_gathering_nodes:
             new_node = NodeWrapper.NodeWrapper(self.local_socket)
             new_node.start()
+
+            if not new_node.active:
+                new_node.stop_premature()
+                time.sleep(0.3)
+                continue
+
             join_round_request = new_node.receive(self.keep_gathering_nodes)
 
             if not join_round_request:

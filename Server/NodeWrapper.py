@@ -21,8 +21,11 @@ class NodeWrapper:
         self.server_session = Session.ServerSessionManager(self.send_queue, self.receive_queue, local_socket)
 
     def start(self):
-        self.session_thread = threading.Thread(target=self.server_session.start)
+        self.session_thread = threading.Thread(target=self.server_session.start, args=(self.connect_status_callback, ))
         self.session_thread.start()
+
+    def connect_status_callback(self, success):
+        self.active = success
 
     def send(self, message):
         message.time_sent = time.time()

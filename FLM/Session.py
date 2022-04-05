@@ -84,10 +84,11 @@ class ServerSessionManager(BaseSessionManager):
         self.send_queue = message_send_queue
         self.receive_queue = message_receive_queue
 
-    def start(self):
+    def start(self, success_callback):
         self.run = True
         success = self.channel.establish_connection()
+        success_callback(success)
         if not success:
-            logging.warning("Could not establish connection to client. Stopping.")
+            logging.warning("Could not establish connection to client. Stopping")
             return False
         super().start()

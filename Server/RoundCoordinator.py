@@ -44,7 +44,8 @@ class Coordinator:
         try:
             self.client_manager.gather_nodes(self.config_manager.node_count)
         except KeyboardInterrupt:
-            logging.warning("Stopping prematurely. Waiting for connections to timeout.")
+            self.client_manager.keep_gathering_nodes = False
+            logging.warning("Stopping prematurely. Waiting for connections to timeout")
             self.keep_running = False
 
     def send_model(self):
