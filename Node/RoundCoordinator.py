@@ -27,6 +27,7 @@ class RoundCoordinator:
 
     def join_round(self):
         while self.keep_running:
+            print("Attempt to connect to server.")
             self.server_manager.send_message(msg.RequestJoinRound())
 
             join_message = self.handle_messages(msg.ResponseJoinRound.id)

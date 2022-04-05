@@ -68,7 +68,7 @@ class ClientSessionManager(BaseSessionManager):
         self.run = True
         success = self.channel.establish_connection(self.remote_ip, self.remote_port)
         if not success:
-            print("Could not establish connection to server. Stopping.")
+            print("Could not establish connection to server.")
             return False
         super().start()
 
