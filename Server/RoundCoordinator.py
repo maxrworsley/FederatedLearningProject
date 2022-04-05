@@ -41,7 +41,7 @@ class Coordinator:
 
     def wait_for_nodes(self):
         try:
-            self.client_manager.gather_nodes(1)
+            self.client_manager.gather_nodes(self.config_manager.node_count)
         except KeyboardInterrupt:
             print("Stopping prematurely. Waiting for connections to timeout.")
             self.keep_running = False
@@ -66,12 +66,14 @@ class Coordinator:
             return
 
         print("Waiting for the model to be returned")
+
         try:
             self.models_received_messages = self.client_manager.wait_for_node_models()
         except KeyboardInterrupt:
             print("Stopping prematurely. Waiting for timeout.")
             self.keep_running = False
             return
+
         print("Received following messages from clients:")
         print(self.models_received_messages, "\n")
 
