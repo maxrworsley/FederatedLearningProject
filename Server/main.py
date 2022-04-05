@@ -1,11 +1,14 @@
+import logging
+import os
+from sys import argv
+
+import ConfigurationManager
 import FLServer
 import RoundCoordinator
-import ConfigurationManager
-from sys import argv
-import os
-
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    logging.info('Starting')
     config_manager = ConfigurationManager.ConfigurationManager()
     config_manager.parse_options(argv)
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'

@@ -1,6 +1,8 @@
-from FLM import MessageDefinitions
-import NodeWrapper
+import logging
 import time
+
+import NodeWrapper
+from FLM import MessageDefinitions
 
 
 class ClientManager:
@@ -69,23 +71,23 @@ class ClientManager:
 
             time_elapsed = time.time() - start_time
             if time_elapsed > timeout:
-                print(f"Timeout while waiting for target message {target_id}.")
+                logging.warning(f"Timeout while waiting for target message {target_id}.")
                 break
 
         for i in range(len(self.nodes)):
             if not responses[i] and self.nodes[i].active:
                 self.nodes[i].active = False
-                print(f"Lost node due to inactivity. Node id was {self.nodes[i].receiver_id}")
+                logging.warning(f"Lost node due to inactivity. Node id was {self.nodes[i].receiver_id}")
 
         return responses
 
     def stop_prematurely(self):
         for node in self.nodes:
             node.stop_premature()
-            print("Connection to all nodes terminated")
+            logging.warning("Connection to all nodes terminated")
 
     def __del__(self):
-        print("Stopping nodes")
+        logging.info("Stopping nodes")
         for node in self.nodes:
             node.stop()
-        print("Connection to all nodes terminated")
+        logging.info("Connection to all nodes terminated")

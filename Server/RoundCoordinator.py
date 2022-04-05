@@ -1,10 +1,11 @@
+import logging
 import os
 
-from FLM import MessageDefinitions
-from FLM import Connection
-from FLM import CheckpointHandler
-from ClientManager import ClientManager
 from Aggregation import ModelAggregationHandler
+from ClientManager import ClientManager
+from FLM import CheckpointHandler
+from FLM import Connection
+from FLM import MessageDefinitions
 
 
 class Coordinator:
@@ -29,7 +30,7 @@ class Coordinator:
 
     def start_round(self):
         self.setup()
-        print("Starting round")
+        logging.info("Starting round")
 
         self.wait_for_nodes()
         self.send_model()
@@ -43,14 +44,14 @@ class Coordinator:
         try:
             self.client_manager.gather_nodes(self.config_manager.node_count)
         except KeyboardInterrupt:
-            print("Stopping prematurely. Waiting for connections to timeout.")
+            logging.warning("Stopping prematurely. Waiting for connections to timeout.")
             self.keep_running = False
 
     def send_model(self):
         if not self.keep_running:
             return
 
-        print("Sending train model message")
+        logging.info("Sending train model message")
         model_message = MessageDefinitions.RequestTrainModel()
         self.tf_handler.create_model()
         self.tf_handler.save_current_model(self.config_manager.working_directory)
@@ -61,21 +62,21 @@ class Coordinator:
 
     def wait_for_responses(self):
         if not self.client_manager.are_any_active():
-            print("No clients connected. Stopping.")
+            logging.info("No clients connected. Stopping.")
             self.keep_running = False
             return
 
-        print("Waiting for the model to be returned")
+        logging.info("Waiting for the model to be returned")
 
         try:
             self.models_received_messages = self.client_manager.wait_for_node_models()
         except KeyboardInterrupt:
-            print("Stopping prematurely. Waiting for timeout.")
+            logging.warning("Stopping prematurely. Waiting for timeout.")
             self.keep_running = False
             return
 
-        print("Received following messages from clients:")
-        print(self.models_received_messages, "\n")
+        logging.info("Received following messages from clients:")
+        logging.info(self.models_received_messages)
 
     def unpack_responses(self):
         if not self.keep_running:
@@ -96,7 +97,7 @@ class Coordinator:
 
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
-        print(f"Aggregated model computed. {selected_model}.")
+        logging.info(f"Aggregated model computed. {selected_model}.")
 
     def __del__(self):
         self.local_socket.close()

@@ -1,4 +1,5 @@
 import argparse
+import logging
 
 
 class ConfigurationManager:
@@ -20,4 +21,4 @@ class ConfigurationManager:
         if args.node_count:
             self.node_count = args.node_count
 
-        print(f"Working on local port {self.working_port}.")
+        logging.info(f"Working on local port {self.working_port}. Node count is {self.node_count}.")

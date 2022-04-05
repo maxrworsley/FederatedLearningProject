@@ -1,8 +1,9 @@
-from FLM import Session
-from FLM import MessageDefinitions
 import queue
 import threading
 import time
+
+from FLM import MessageDefinitions
+from FLM import Session
 
 
 class NodeWrapper:
