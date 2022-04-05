@@ -20,7 +20,7 @@ class RoundCoordinator:
 
     def start_round(self):
         self.keep_running = True
-        self.server_manager.start()
+        self.server_manager.start(self.cancel_callback)
         self.join_round()
         self.wait_for_model()
         self.train_model()
@@ -42,10 +42,12 @@ class RoundCoordinator:
                 logging.info("Joined round")
                 return
         else:
-            logging.info("Received unexpected response to join round request")
-
+            logging.info("Received unexpected/no response to join round request")
 
     def wait_for_model(self):
+        if not self.keep_running:
+            return
+
         train_message = None
         while not train_message and self.keep_running:
             train_message = self.handle_messages(msg.RequestTrainModel.id)
@@ -58,6 +60,9 @@ class RoundCoordinator:
         self.keep_running = False
 
     def train_model(self):
+        if not self.keep_running:
+            return
+
         message_thread = threading.Thread(target=self.async_message_handler)
         message_thread.start()
         self.tensorflow_manager.train(self.configuration_manager)
@@ -96,10 +101,11 @@ class RoundCoordinator:
     def handle_messages(self, target_id):
         while self.keep_running:
             message = self.get_message()
-            if message.id == target_id:
-                return message
+            if message:
+                if message.id == target_id:
+                    return message
 
-            self.handle_exceptional_message(message)
+                self.handle_exceptional_message(message)
         return None
 
     def handle_exceptional_message(self, message):

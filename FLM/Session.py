@@ -65,10 +65,11 @@ class ClientSessionManager(BaseSessionManager):
         self.send_queue = message_send_queue
         self.receive_queue = message_receive_queue
 
-    def start(self):
+    def start(self, cancel_callback):
         self.run = True
         success = self.channel.establish_connection(self.remote_ip, self.remote_port)
         if not success:
+            cancel_callback()
             logging.warning("Could not establish connection to server.")
             return False
         super().start()
