@@ -1,3 +1,4 @@
+import logging
 import queue
 import time
 
@@ -68,7 +69,7 @@ class ClientSessionManager(BaseSessionManager):
         self.run = True
         success = self.channel.establish_connection(self.remote_ip, self.remote_port)
         if not success:
-            print("Could not establish connection to server.")
+            logging.warning("Could not establish connection to server.")
             return False
         super().start()
 
@@ -86,6 +87,6 @@ class ServerSessionManager(BaseSessionManager):
         self.run = True
         success = self.channel.establish_connection()
         if not success:
-            print("Could not establish connection to client. Stopping.")
+            logging.warning("Could not establish connection to client. Stopping.")
             return False
         super().start()
