@@ -17,7 +17,7 @@ class BaseSessionManager:
         self.channel.start_async_receive()
 
         while self.run:
-            time.sleep(0.5)
+            time.sleep(0.2)
             self.send_next_message()
             self.receive_next_message()
             if self.channel.connection is None:
