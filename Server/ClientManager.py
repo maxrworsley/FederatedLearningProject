@@ -31,6 +31,7 @@ class ClientManager:
                 new_node.sender_id = 0
                 new_node.receiver_id = current_count + 1
                 new_node.send(MessageDefinitions.ResponseJoinRound())
+                logging.info(f'New node joined round. ID={new_node.receiver_id}')
                 self.nodes.append(new_node)
                 current_count += 1
 
