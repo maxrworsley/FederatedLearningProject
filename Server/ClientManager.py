@@ -20,14 +20,10 @@ class ClientManager:
             new_node = NodeWrapper.NodeWrapper(self.local_socket)
             new_node.start()
 
-            if not new_node.active:
-                new_node.stop_premature()
-                time.sleep(0.3)
-                continue
-
-            join_round_request = new_node.receive(self.keep_gathering_nodes)
+            join_round_request = new_node.receive(self.keep_gathering_nodes, timeout=2)
 
             if not join_round_request:
+                new_node.stop_premature()
                 continue
 
             if self.keep_gathering_nodes:
@@ -70,7 +66,7 @@ class ClientManager:
             time.sleep(0.5)
             for i in range(len(self.nodes)):
                 if not responses[i]:
-                    response = self.nodes[i].receive(block=False)
+                    response = self.nodes[i].receive(block=True, timeout=0.1)
                     if response:
                         if response.id == target_id:
                             responses[i] = response
