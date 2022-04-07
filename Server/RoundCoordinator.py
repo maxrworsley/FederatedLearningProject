@@ -109,6 +109,11 @@ class Coordinator:
         if not self.keep_running:
             return
 
+        if len(self.models_received) == 0:
+            logging.warning("No models received. Cannot perform aggregation")
+            self.keep_running = False
+            return
+
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
         if not self.config_manager.remove_directory:
