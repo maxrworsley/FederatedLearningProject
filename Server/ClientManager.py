@@ -50,8 +50,6 @@ class ClientManager:
         self.send_to_all(model_message)
 
     def wait_for_node_models(self):
-        # todo could make timeout configurable
-
         return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=30)
 
     def send_to_all(self, message):
@@ -65,7 +63,7 @@ class ClientManager:
         start_time = time.time()
 
         while not all(responses):
-            time.sleep(0.5)
+            time.sleep(0.1)
             for i in range(len(self.nodes)):
                 if not responses[i]:
                     response = self.nodes[i].receive(block=True, timeout=0.1)

@@ -1,4 +1,5 @@
 import argparse
+import os.path
 
 
 class ConfigurationManager:
@@ -12,13 +13,12 @@ class ConfigurationManager:
     def parse_options(self, opt):
         parser = argparse.ArgumentParser()
         parser.add_argument(type=str, help='the script base path', dest='base_directory')
-        parser.add_argument('--run_on_desktop', action='store_true')
+        parser.add_argument('--run_on_desktop_extension', type=str, required=True)
 
         args = parser.parse_args(opt)
 
-        if args.run_on_desktop:
+        if args.run_on_desktop_extension:
             self.run_on_desktop = True
-            self.file_path = \
-                "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
-            self.working_directory = \
-                "/home/max/Documents/FederatedLearning/node_working_directory"
+            self.file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
+            self.working_directory = os.path.join("/home/max/Documents/FederatedLearning/node_working_directory",
+                                                  args.run_on_desktop_extension)
