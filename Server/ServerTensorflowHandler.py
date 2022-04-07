@@ -10,6 +10,7 @@ class TensorflowHandler:
         if load_path:
             try:
                 self.model = tf.keras.models.load_model(load_path)
+                logging.info("Loaded saved model")
                 return
             except IOError:
                 logging.warning("Tried to load saved model, but couldn't be found")

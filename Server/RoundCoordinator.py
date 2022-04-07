@@ -117,6 +117,7 @@ class Coordinator:
         logging.info(f"Aggregated model computed. {selected_model}.")
 
     def plot_responses(self):
+        # todo model doesn't seem to be handed back to nodes when persistent
         if not self.keep_running:
             return
 
