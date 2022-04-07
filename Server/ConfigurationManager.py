@@ -8,12 +8,14 @@ class ConfigurationManager:
     node_count = 1
     remove_directory = False
     plot_responses = False
+    epochs = 1
 
     def parse_options(self, opt):
         parser = argparse.ArgumentParser()
         parser.add_argument(type=str, help='the script base path', dest='base_directory')
         parser.add_argument('--local_port', type=int, required=False)
         parser.add_argument('--node_count', type=int, required=False)
+        parser.add_argument('--epochs', type=int, required=False)
         parser.add_argument('-rm', action='store_true', dest='remove_directory')
         parser.add_argument('--plot', action='store_true', dest='plot')
 
@@ -27,5 +29,8 @@ class ConfigurationManager:
 
         if args.plot:
             self.plot_responses = True
+
+        if args.epochs:
+            self.epochs = args.epochs
 
         logging.info(f"Working on local port {self.working_port}. Node count is {self.node_count}.")
