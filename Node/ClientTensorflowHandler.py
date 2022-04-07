@@ -34,6 +34,9 @@ class TensorflowHandler:
         self.stopping_callback = StopTrainingCallback()
         self.model_trainer.fit_model(self.training_epochs, self.validation_split, self.stopping_callback)
 
+    def get_history(self):
+        return self.model_trainer.history[-1]
+
     def stop_training(self):
         if self.stopping_callback:
             self.stopping_callback.keep_training = False

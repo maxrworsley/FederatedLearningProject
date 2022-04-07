@@ -71,6 +71,7 @@ class RoundCoordinator:
         response_message = msg.ResponseTrainModel()
         response_message.checkpoint_bytes = \
             self.tensorflow_manager.get_model_bytes_remove_directory(self.configuration_manager)
+        response_message.history = self.tensorflow_manager.get_history()
         self.server_manager.send_message(response_message)
 
     def stop_round(self):
