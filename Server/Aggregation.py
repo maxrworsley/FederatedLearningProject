@@ -11,12 +11,22 @@ class ModelAggregationHandler:
         self.models, self.scores = zip(*models_and_scores)
 
     def aggregate_models(self):
-        try:
-            index_min = min(range(len(self.scores)), key=self.scores.__getitem__)
-        except ValueError:
-            return None
+        output = list(copy.deepcopy(self.models))
 
-        return self.models[index_min]
+        # We have to have an even amount of models
+        if len(output) % 2 == 1:
+            output.append(output[-1])
+
+        while len(output) > 1:
+            it = iter(output)
+            completed_models = []
+            for model in it:
+                new_model = self.average_two_models(model, next(it))
+                completed_models.append(new_model)
+            print(completed_models)
+            output = completed_models
+
+        return output
 
     @staticmethod
     def average_two_models(model_1, model_2):
