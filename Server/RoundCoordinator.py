@@ -3,6 +3,7 @@ import os
 
 from Aggregation import ModelAggregationHandler
 from ClientManager import ClientManager
+from Visualisation import Visualiser
 from FLM import CheckpointHandler
 from FLM import Connection
 from FLM import MessageDefinitions
@@ -101,6 +102,19 @@ class Coordinator:
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
         logging.info(f"Aggregated model computed. {selected_model}.")
+
+    def plot_responses(self):
+        if not self.keep_running:
+            return
+
+        if not self.config_manager.plot_responses:
+            return
+
+        visualiser = Visualiser()
+
+        history = [message.history for message in self.models_received_messages]
+        visualiser.plot_evaluation_losses(history)
+        visualiser.plot_history_over_epochs(history)
 
     def __del__(self):
         self.local_socket.close()

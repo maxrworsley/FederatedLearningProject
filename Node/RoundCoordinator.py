@@ -75,7 +75,7 @@ class RoundCoordinator:
         self.server_manager.send_message(response_message)
 
     def stop_round(self):
-        logging.info("Completed training. Disconnecting")
+        logging.info("Stopping")
         self.receive_async_messages = False
         self.keep_running = False
         self.tensorflow_manager.stop_training()
