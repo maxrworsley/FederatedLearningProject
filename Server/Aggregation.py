@@ -1,4 +1,5 @@
 import copy
+import logging
 
 import numpy as np
 
@@ -12,20 +13,22 @@ class ModelAggregationHandler:
 
     def aggregate_models(self):
         output = list(copy.deepcopy(self.models))
+        logging.info(f"Beginning model aggregation with {len(output)} models")
 
         # We have to have an even amount of models
         if len(output) % 2 == 1:
             output.append(output[-1])
 
+        # Average models in pairs, like a pyramid to create the average of all the models at the top
         while len(output) > 1:
             it = iter(output)
             completed_models = []
             for model in it:
                 new_model = self.average_two_models(model, next(it))
                 completed_models.append(new_model)
-            print(completed_models)
             output = completed_models
 
+        logging.info("Model aggregation complete")
         return output
 
     @staticmethod
