@@ -1,10 +1,25 @@
+import logging
+
 import tensorflow as tf
 
 
 class TensorflowHandler:
     model = None
 
-    def create_model(self):
+    def get_model(self, load_path=None):
+        if load_path:
+            try:
+                self.model = tf.keras.models.load_model(load_path)
+                return
+            except IOError:
+                logging.warning("Tried to load saved model, but couldn't be found")
+                pass
+            except ImportError:
+                logging.warning("Tried to load saved model, but hdf5 file is not present")
+                pass
+
+        logging.info("Creating model")
+
         self.model = tf.keras.Sequential([
             tf.keras.layers.Input(shape=(9,)),
             tf.keras.layers.Dense(64, activation='relu'),
@@ -16,6 +31,9 @@ class TensorflowHandler:
             optimizer=tf.optimizers.Adam(learning_rate=0.05),
             loss='mean_absolute_error'
         )
+
+    def set_model(self, model):
+        self.model = model
 
     def save_current_model(self, working_directory):
         path = working_directory + "/model"

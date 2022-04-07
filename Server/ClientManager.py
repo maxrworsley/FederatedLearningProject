@@ -49,8 +49,8 @@ class ClientManager:
     def send_model_to_nodes(self, model_message):
         self.send_to_all(model_message)
 
-    def wait_for_node_models(self):
-        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=30)
+    def wait_for_node_models(self, timeout):
+        return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=timeout)
 
     def send_to_all(self, message):
         for node in self.nodes:

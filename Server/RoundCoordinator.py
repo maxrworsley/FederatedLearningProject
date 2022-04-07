@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 from Aggregation import ModelAggregationHandler
 from ClientManager import ClientManager
@@ -30,7 +31,7 @@ class Coordinator:
         self.local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         self.client_manager = ClientManager(self.local_socket)
 
-    def start_round(self):
+    def perform_round(self):
         self.setup()
         logging.info("Starting round")
 
@@ -44,6 +45,9 @@ class Coordinator:
             self.client_manager.stop_prematurely()
 
     def wait_for_nodes(self):
+        if not self.keep_running:
+            return
+
         try:
             self.client_manager.gather_nodes(self.config_manager.node_count)
         except KeyboardInterrupt:
@@ -57,7 +61,12 @@ class Coordinator:
 
         logging.info("Sending train model message")
         model_message = MessageDefinitions.RequestTrainModel()
-        self.tf_handler.create_model()
+
+        if self.config_manager.remove_directory:
+            self.tf_handler.get_model()
+        else:
+            self.tf_handler.get_model(os.path.join(self.config_manager.working_directory, "model"))
+
         self.tf_handler.save_current_model(self.config_manager.working_directory)
         self.cp_handler.create_checkpoint()
         model_message.checkpoint_bytes = self.cp_handler.get_saved_checkpoint_bytes()
@@ -73,7 +82,7 @@ class Coordinator:
         logging.info("Waiting for the model to be returned")
 
         try:
-            self.models_received_messages = self.client_manager.wait_for_node_models()
+            self.models_received_messages = self.client_manager.wait_for_node_models(self.config_manager.training_timeout)
         except KeyboardInterrupt:
             logging.warning("Stopping prematurely. Waiting for timeout.")
             self.keep_running = False
@@ -102,6 +111,9 @@ class Coordinator:
 
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
+        if not self.config_manager.remove_directory:
+            self.tf_handler.set_model(selected_model)
+            self.tf_handler.save_current_model(self.config_manager.working_directory)
         logging.info(f"Aggregated model computed. {selected_model}.")
 
     def plot_responses(self):
@@ -118,4 +130,11 @@ class Coordinator:
         visualiser.plot_history_over_epochs(history, self.config_manager.epochs)
 
     def __del__(self):
+        # Clean up
+        if self.config_manager.remove_directory:
+            try:
+                shutil.rmtree(self.config_manager.working_directory)
+            except AttributeError:
+                # Directory already removed
+                pass
         self.local_socket.close()

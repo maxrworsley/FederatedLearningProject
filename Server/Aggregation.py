@@ -29,7 +29,7 @@ class ModelAggregationHandler:
             output = completed_models
 
         logging.info("Model aggregation complete")
-        return output
+        return output[0]
 
     @staticmethod
     def average_two_models(model_1, model_2):

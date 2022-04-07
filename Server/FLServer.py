@@ -9,4 +9,4 @@ class FLServer:
         self.coordinator.set_handlers(tf_handler, self.configuration)
 
     def run_server(self):
-        self.coordinator.start_round()
+        self.coordinator.perform_round()
