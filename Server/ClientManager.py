@@ -20,21 +20,19 @@ class ClientManager:
             new_node = NodeWrapper.NodeWrapper(self.local_socket)
             new_node.start()
 
-            if not new_node.active:
-                new_node.stop_premature()
-                time.sleep(0.3)
-                continue
-
-            join_round_request = new_node.receive(self.keep_gathering_nodes)
+            join_round_request = new_node.receive(self.keep_gathering_nodes, timeout=2)
 
             if not join_round_request:
+                new_node.stop_premature()
                 continue
 
             if self.keep_gathering_nodes:
                 new_node.active = True
                 new_node.sender_id = 0
                 new_node.receiver_id = current_count + 1
+                new_node.round_id = int(str(time.time())[-2:])
                 new_node.send(MessageDefinitions.ResponseJoinRound())
+                logging.info(f'New node joined round. ID={new_node.receiver_id}')
                 self.nodes.append(new_node)
                 current_count += 1
 
@@ -52,8 +50,6 @@ class ClientManager:
         self.send_to_all(model_message)
 
     def wait_for_node_models(self):
-        # todo could make timeout configurable
-
         return self.receive_from_all(MessageDefinitions.ResponseTrainModel.id, timeout=30)
 
     def send_to_all(self, message):
@@ -67,10 +63,10 @@ class ClientManager:
         start_time = time.time()
 
         while not all(responses):
-            time.sleep(0.5)
+            time.sleep(0.1)
             for i in range(len(self.nodes)):
                 if not responses[i]:
-                    response = self.nodes[i].receive(block=False)
+                    response = self.nodes[i].receive(block=True, timeout=0.1)
                     if response:
                         if response.id == target_id:
                             responses[i] = response

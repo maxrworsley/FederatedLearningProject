@@ -96,5 +96,5 @@ class ChannelToClient(BaseChannel):
     def __init__(self, local_socket):
         self.connection = Connection.ConnectionToClient(local_socket)
 
-    def establish_connection(self):
-        return self.connection.wait_for_connection(timeout_countdown=90)
+    def establish_connection(self, connection_communicator):
+        return self.connection.wait_for_connection(connection_communicator)

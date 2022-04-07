@@ -4,9 +4,10 @@ from pathlib import Path
 
 
 class CheckpointHandler:
-    def __init__(self, working_directory):
+    def __init__(self, working_directory, remove_directory=True):
         self.checkpoint_directory = working_directory
         self.checkpoint_file_path = working_directory + "/model_checkpoint.zip"
+        self.remove_directory = remove_directory
         Path(working_directory).mkdir(parents=True, exist_ok=True)
 
     def get_checkpoint_path(self):
@@ -16,7 +17,6 @@ class CheckpointHandler:
         owd = os.getcwd()
         try:
             os.chdir(self.checkpoint_directory)
-            # todo save directory needs to be different depending on the config, since we can have multiple on local
             shutil.make_archive("model_checkpoint", "zip", "./model")
         finally:
             os.chdir(owd)
@@ -38,9 +38,9 @@ class CheckpointHandler:
             return read_file.read()
 
     def __del__(self):
-        # Get directory name
         try:
-            shutil.rmtree(self.checkpoint_directory)
+            if self.remove_directory:
+                shutil.rmtree(self.checkpoint_directory)
         except OSError as e:
             # Could not delete directory as didn't exist
             pass

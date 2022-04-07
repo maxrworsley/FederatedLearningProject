@@ -99,14 +99,18 @@ class ConnectionToClient(Connection):
         bytes_received = self.get_full_packet(self.connection)
         return bytes_received
 
-    def wait_for_connection(self, timeout_countdown=10):
+    def wait_for_connection(self, conn_comm):
         self.disconnect()
-        for x in range(timeout_countdown):
+        for x in range(conn_comm.timeout):
+            if conn_comm.terminate_early:
+                break
             try:
                 self.connection, self.remote_address = self.socket.accept()
                 if self.connection:
-                    return True
+                    conn_comm.success = True
+                    return
             except timeout:
                 time.sleep(1)
 
-        return False
+        conn_comm.success = False
+        return

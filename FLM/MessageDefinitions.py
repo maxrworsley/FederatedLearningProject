@@ -14,7 +14,7 @@ class BaseMessage:
         """)
 
     def __repr__(self):
-        return f'{self.id}{self.round_id}{self.sender_id}{self.receiver_id}{self.time_sent}'
+        return f'{self.id}-{self.round_id}-{self.sender_id}-{self.receiver_id}-{self.time_sent}'
 
 
 class StopSession(BaseMessage):

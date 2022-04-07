@@ -24,7 +24,8 @@ class Coordinator:
         self.config_manager = config_manager
 
     def setup(self):
-        self.cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory)
+        self.cp_handler = CheckpointHandler.CheckpointHandler(self.config_manager.working_directory,
+                                                              self.config_manager.remove_directory)
         self.local_socket = Connection.get_new_server_socket("", self.config_manager.working_port)
         self.client_manager = ClientManager(self.local_socket)
 
@@ -87,7 +88,8 @@ class Coordinator:
         for idx, response in enumerate(self.models_received_messages):
             if response:
                 # Model number n is saved in the format working_directory/received_models/n/model
-                cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)))
+                cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)),
+                                                                 self.config_manager.remove_directory)
                 cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
                 model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
                 self.models_received.append((model, response.evaluation_loss))
