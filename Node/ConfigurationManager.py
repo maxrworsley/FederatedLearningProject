@@ -13,7 +13,7 @@ class ConfigurationManager:
     def parse_options(self, opt):
         parser = argparse.ArgumentParser()
         parser.add_argument(type=str, help='the script base path', dest='base_directory')
-        parser.add_argument('--run_on_desktop_extension', type=str, required=True)
+        parser.add_argument('--run_on_desktop_extension', type=str, required=False)
 
         args = parser.parse_args(opt)
 

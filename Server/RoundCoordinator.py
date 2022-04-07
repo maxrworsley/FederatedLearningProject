@@ -3,6 +3,7 @@ import os
 
 from Aggregation import ModelAggregationHandler
 from ClientManager import ClientManager
+from Visualisation import Visualiser
 from FLM import CheckpointHandler
 from FLM import Connection
 from FLM import MessageDefinitions
@@ -38,6 +39,7 @@ class Coordinator:
         self.wait_for_responses()
         self.unpack_responses()
         self.aggregate_models()
+        self.plot_responses()
         if not self.keep_running:
             self.client_manager.stop_prematurely()
 
@@ -59,7 +61,7 @@ class Coordinator:
         self.tf_handler.save_current_model(self.config_manager.working_directory)
         self.cp_handler.create_checkpoint()
         model_message.checkpoint_bytes = self.cp_handler.get_saved_checkpoint_bytes()
-        model_message.epochs = 1
+        model_message.epochs = self.config_manager.epochs
         self.client_manager.send_model_to_nodes(model_message)
 
     def wait_for_responses(self):
@@ -101,6 +103,19 @@ class Coordinator:
         self.aggregation_handler = ModelAggregationHandler(self.models_received)
         selected_model = self.aggregation_handler.aggregate_models()
         logging.info(f"Aggregated model computed. {selected_model}.")
+
+    def plot_responses(self):
+        if not self.keep_running:
+            return
+
+        if not self.config_manager.plot_responses:
+            return
+
+        visualiser = Visualiser()
+
+        history = [(message.history, message.sender_id) for message in self.models_received_messages]
+        visualiser.plot_evaluation_losses(history)
+        visualiser.plot_history_over_epochs(history, self.config_manager.epochs)
 
     def __del__(self):
         self.local_socket.close()
