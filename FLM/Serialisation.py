@@ -2,6 +2,7 @@ import pickle
 
 
 class Serialiser:
+    """Wraps serialisation for messages to go over the wire"""
     API_VERSION = 1
     BYTES_HEADER = 2
     BYTES_API_VERSION = 2

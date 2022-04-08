@@ -4,8 +4,11 @@ from socket import *
 
 
 def get_new_server_socket(ip, port):
+    """Used to set correct parameters for a server socket"""
     new_socket = socket(AF_INET, SOCK_STREAM)
+    # Allow reuse of socket immediately after closing
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    # Timeout for connections
     new_socket.settimeout(0.5)
     new_socket.bind((ip, port))
     new_socket.listen(10)
@@ -13,6 +16,7 @@ def get_new_server_socket(ip, port):
 
 
 class Connection:
+    """Abstract class to handle packets"""
     PACKET_LENGTH_BYTES = 4
     socket = None
 
@@ -25,6 +29,7 @@ class Connection:
 
         data = bytearray()
         while packet_length > 0:
+            # Don't receive any more than the remainder of the message
             new_data = receiving_socket.recv(min(buffer_size, packet_length))
             data += new_data
             packet_length -= len(new_data)
@@ -33,6 +38,7 @@ class Connection:
 
 
 class ConnectionToServer(Connection):
+    """Used by channels to manage connection to server"""
     def __init__(self, l_ip, l_port):
         self.ip = l_ip
         self.port = l_port
@@ -73,6 +79,7 @@ class ConnectionToServer(Connection):
 
 
 class ConnectionToClient(Connection):
+    """Used by channels to manage connection to clients"""
     connection = None
     remote_address = None
 
@@ -103,6 +110,7 @@ class ConnectionToClient(Connection):
         self.disconnect()
         for x in range(conn_comm.timeout):
             if conn_comm.terminate_early:
+                # Calling function has asked to terminate attempts to connect
                 break
             try:
                 self.connection, self.remote_address = self.socket.accept()

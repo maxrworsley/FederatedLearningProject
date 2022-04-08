@@ -6,14 +6,15 @@ from FLM import Session
 
 
 class ServerManager:
+    """Wraps the communication with the server"""
     client_session = None
     client_thread = None
     send_queue = None
     receive_queue = None
+    config = None
     round_id = -1
     sender_id = -1
     receiver_id = -1
-    config = None
 
     def __init__(self, configuration):
         self.send_queue = queue.Queue()
@@ -28,6 +29,7 @@ class ServerManager:
         self.client_thread.start()
 
     def send_message(self, message):
+        # Add attributes to message before sending
         message.round_id = self.round_id
         message.sender_id = self.sender_id
         message.receiver_id = self.receiver_id

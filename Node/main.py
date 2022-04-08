@@ -10,6 +10,8 @@ if __name__ == '__main__':
     logging.info('Starting')
     config_manager = ConfigurationManager.ConfigurationManager()
     config_manager.parse_options(argv)
+    # We don't need warnings about lack of GPU
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
     node = Node.Node()
     node.start(config_manager)

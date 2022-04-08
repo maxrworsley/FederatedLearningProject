@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 class CheckpointHandler:
+    """Create, unpack and get bytes for a checkpoint. A checkpoint is a zipped model"""
     def __init__(self, working_directory, remove_directory=True):
         self.checkpoint_directory = working_directory
         self.checkpoint_file_path = working_directory + "/model_checkpoint.zip"
@@ -14,11 +15,13 @@ class CheckpointHandler:
         return self.checkpoint_file_path
 
     def create_checkpoint(self):
+        # Move to directory of checkpoint to ensure the format of the archive is correct
         owd = os.getcwd()
         try:
             os.chdir(self.checkpoint_directory)
             shutil.make_archive("model_checkpoint", "zip", "./model")
         finally:
+            # Have to ensure the runtime goes back to the original directory
             os.chdir(owd)
 
     def save_unpack_checkpoint(self, checkpoint_bytes):
@@ -31,6 +34,7 @@ class CheckpointHandler:
             os.chdir(self.checkpoint_directory)
             shutil.unpack_archive("model_checkpoint.zip", "./model")
         finally:
+            # Have to ensure the runtime goes back to the original directory
             os.chdir(owd)
 
     def get_saved_checkpoint_bytes(self):

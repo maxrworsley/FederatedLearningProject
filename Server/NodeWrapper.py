@@ -13,6 +13,7 @@ class ThreadConnectionCommunicator:
 
 
 class NodeWrapper:
+    """Wraps a node to make communication easier"""
     send_queue = None
     receive_queue = None
     server_session = None
@@ -37,6 +38,7 @@ class NodeWrapper:
         message.round_id = self.round_id
         message.sender_id = self.sender_id
         message.receiver_id = self.receiver_id
+
         self.send_queue.put(message)
 
     def receive(self, block=False, timeout=30):

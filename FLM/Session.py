@@ -7,6 +7,8 @@ from FLM import MessageDefinitions
 
 
 class BaseSessionManager:
+    """Abstract class to manage sending/receiving messages using FLM.
+    Start the session, use send and receive functions to get messages synchronously and stop"""
     run = False
     channel = None
     send_queue = queue.Queue()
@@ -14,6 +16,7 @@ class BaseSessionManager:
     channel_receive_queue = queue.Queue()
 
     def start(self):
+        """Begin sending and receiving messages"""
         self.channel.start_async_receive()
 
         while self.run:
@@ -28,6 +31,7 @@ class BaseSessionManager:
         self.channel.disconnect()
 
     def send_next_message(self):
+        """Check the queue and send a message if one exists"""
         try:
             next_message = self.send_queue.get(block=False)
         except queue.Empty:
@@ -39,6 +43,7 @@ class BaseSessionManager:
             self.stop()
 
     def receive_next_message(self):
+        """Check the queue and pass on message if one exists"""
         try:
             next_message = self.channel_receive_queue.get(block=False)
         except queue.Empty:
