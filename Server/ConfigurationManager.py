@@ -18,7 +18,7 @@ class ConfigurationManager:
         parser.add_argument('--node_count', type=int, required=False)
         parser.add_argument('--epochs', type=int, required=False)
         parser.add_argument('--training_timeout', type=int, required=False)
-        parser.add_argument('-rm', action='store_true', dest='remove_directory')
+        parser.add_argument('--rm', action='store_true', dest='remove_directory')
         parser.add_argument('--plot', action='store_true', dest='plot')
 
         args = parser.parse_args(opt)
