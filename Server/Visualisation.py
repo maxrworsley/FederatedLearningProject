@@ -25,6 +25,7 @@ class Visualiser:
 
         val_losses = []
         ids = []
+        # Get the last evaluation result
         for history, ID in history_with_ids:
             val_losses.append(history.history['val_loss'][-1])
             ids.append(ID)

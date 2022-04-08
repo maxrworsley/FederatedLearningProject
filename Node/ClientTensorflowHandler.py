@@ -15,6 +15,11 @@ class TensorflowHandler:
     checkpoint_handler = None
 
     def get_model_bytes_remove_directory(self, config):
+        """
+        Save the current model, create a checkpoint of it, get the bytes and remove the checkpoint
+        :param config: Contains the working directory to save the model in and delete
+        :return: The model checkpoint zipped as bytes
+        """
         working_path = config.working_directory
 
         self.model_trainer.save_model(working_path)
@@ -22,6 +27,11 @@ class TensorflowHandler:
         return self.checkpoint_handler.get_saved_checkpoint_bytes()
 
     def train(self, config):
+        """
+        Save and load the model in the working directory. Then perform training as per message instructions
+        :param config: Contains the working directory to use for the model
+        :return:
+        """
         self.checkpoint_handler = CheckpointHandler(config.working_directory)
         data_wrapper = DataWrapper.DataWrapper(config.file_path)
         self.model_trainer = ModelTrainer(data_wrapper)

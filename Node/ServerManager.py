@@ -29,6 +29,7 @@ class ServerManager:
         self.client_thread.start()
 
     def send_message(self, message):
+        # Add attributes to message before sending
         message.round_id = self.round_id
         message.sender_id = self.sender_id
         message.receiver_id = self.receiver_id

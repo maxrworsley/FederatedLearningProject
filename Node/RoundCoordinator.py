@@ -28,6 +28,7 @@ class RoundCoordinator:
         self.stop_round()
 
     def cancel_callback(self):
+        # Used to cancel round due to no connection if required
         self.keep_running = False
 
     def join_round(self):
@@ -56,6 +57,7 @@ class RoundCoordinator:
         while not train_message and self.keep_running:
             train_message = self.handle_messages(msg.RequestTrainModel.id)
             if train_message:
+                # Set the configuration for training using the message parameters
                 self.tf_manager.received_bytes = train_message.checkpoint_bytes
                 self.tf_manager.training_epochs = train_message.epochs
                 self.tf_manager.validation_split = train_message.validation_split
@@ -67,13 +69,16 @@ class RoundCoordinator:
         if not self.keep_running:
             return
 
+        # Keep a thread running to receive messages such as cancellation
         receive_messages_thread = threading.Thread(target=self.async_message_handler)
         receive_messages_thread.start()
 
+        # Train model
         self.tf_manager.train(self.config_manager)
         self.receive_async_messages = False
         receive_messages_thread.join()
 
+        # Send model back
         response_message = msg.ResponseTrainModel()
         response_message.checkpoint_bytes = self.tf_manager.get_model_bytes_remove_directory(self.config_manager)
         response_message.history = self.tf_manager.get_most_recent_history()

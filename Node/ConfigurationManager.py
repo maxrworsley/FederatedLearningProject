@@ -18,6 +18,7 @@ class ConfigurationManager:
         args = parser.parse_args(opt)
 
         if args.run_on_desktop_extension:
+            # If running on the desktop, data and the working directory have to be specified
             self.run_on_desktop = True
             self.file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
             self.working_directory = os.path.join("/home/max/Documents/FederatedLearning/node_working_directory",

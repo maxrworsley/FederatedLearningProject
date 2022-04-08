@@ -44,6 +44,7 @@ class Coordinator:
         self.aggregate_models()
         self.plot_responses()
         if not self.keep_running:
+            # At some point the round has failed
             self.client_manager.stop_prematurely()
 
     def wait_for_nodes(self):
@@ -61,6 +62,7 @@ class Coordinator:
         if not self.keep_running:
             return
 
+        # If we are in non-persistent mode
         if self.config_manager.remove_directory:
             self.tf_handler.get_model()
         else:
@@ -105,6 +107,7 @@ class Coordinator:
                                                                  self.config_manager.remove_directory)
                 cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
 
+                # Add the model to a list to be aggregated
                 model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
                 self.models_received.append((model, response.evaluation_loss))
 
