@@ -4,6 +4,7 @@ from ModelTrainer import ModelTrainer, StopTrainingCallback
 
 
 class TensorflowHandler:
+    """Handles all model training for the client"""
     received_bytes = None
     training_epochs = None
     validation_split = None

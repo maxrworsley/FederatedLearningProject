@@ -7,6 +7,7 @@ from FLM import Serialisation
 
 
 class BaseChannel:
+    """Abstract channel class for sending and receiving message objects. Not to be used directly"""
     connection = None
     message_queue = None
     async_thread = None

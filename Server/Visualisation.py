@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 
 
 class Visualiser:
+    """Handles graphing of node results"""
     @staticmethod
     def plot_history_over_epochs(histories, epochs):
         plt.style.use('ggplot')

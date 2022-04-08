@@ -5,6 +5,7 @@ import numpy as np
 
 
 class ModelAggregationHandler:
+    """Handles the aggregation of client models into an average model"""
     models = []
     scores = []
 

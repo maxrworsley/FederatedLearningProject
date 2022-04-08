@@ -7,6 +7,8 @@ from FLM import MessageDefinitions
 
 
 class BaseSessionManager:
+    """Abstract class to manage sending/receiving messages using FLM.
+    Start the session, use send and receive functions to get messages synchronously and stop"""
     run = False
     channel = None
     send_queue = queue.Queue()

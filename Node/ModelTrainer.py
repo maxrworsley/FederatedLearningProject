@@ -5,6 +5,7 @@ import tensorflow as tf
 
 
 class StopTrainingCallback(tf.keras.callbacks.Callback):
+    """Callback used to stop training early at the end of an epoch"""
     keep_training = True
 
     def on_epoch_end(self, epoch, logs=None):
@@ -13,6 +14,7 @@ class StopTrainingCallback(tf.keras.callbacks.Callback):
 
 
 class ModelTrainer:
+    """Handles getting data and training the tensorflow model attribute"""
     training_features = None
     training_labels = None
     test_features = None

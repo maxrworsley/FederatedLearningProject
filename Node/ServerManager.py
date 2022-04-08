@@ -6,6 +6,7 @@ from FLM import Session
 
 
 class ServerManager:
+    """Wraps the communication with the server"""
     client_session = None
     client_thread = None
     send_queue = None

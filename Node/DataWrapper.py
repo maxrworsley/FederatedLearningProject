@@ -3,6 +3,7 @@ import pandas as pd
 
 
 class DataWrapper:
+    """Wraps methods for getting and sorting the local data"""
     def __init__(self, data_path):
         self.data_path = data_path
 

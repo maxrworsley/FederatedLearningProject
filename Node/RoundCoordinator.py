@@ -7,6 +7,8 @@ from ServerManager import ServerManager
 
 
 class RoundCoordinator:
+    """Main class that controls the program flow of the node.
+    Joins together handlers and managers to perform a single round"""
     config_manager = None
     tf_manager = None
     keep_running = True

@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 class CheckpointHandler:
+    """Create, unpack and get bytes for a checkpoint. A checkpoint is a zipped model"""
     def __init__(self, working_directory, remove_directory=True):
         self.checkpoint_directory = working_directory
         self.checkpoint_file_path = working_directory + "/model_checkpoint.zip"

@@ -13,6 +13,7 @@ class ThreadConnectionCommunicator:
 
 
 class NodeWrapper:
+    """Wraps a node to make communication easier"""
     send_queue = None
     receive_queue = None
     server_session = None

@@ -11,6 +11,8 @@ from FLM import MessageDefinitions
 
 
 class Coordinator:
+    """Handles the control flow of the training round, using the handlers.
+    Performs and marshals nodes through a single round"""
     tf_handler = None
     keep_running = True
     config_manager = None

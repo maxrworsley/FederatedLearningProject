@@ -5,6 +5,7 @@ import tensorflow as tf
 
 
 class TensorflowHandler:
+    """Handles creation/loading of model for nodes to use"""
     model = None
 
     def get_model(self, load_path=None):

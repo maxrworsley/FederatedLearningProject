@@ -4,6 +4,7 @@ from socket import *
 
 
 def get_new_server_socket(ip, port):
+    """Used to set correct parameters for a server socket"""
     new_socket = socket(AF_INET, SOCK_STREAM)
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     new_socket.settimeout(0.5)
@@ -13,6 +14,7 @@ def get_new_server_socket(ip, port):
 
 
 class Connection:
+    """Abstract class to handle packets"""
     PACKET_LENGTH_BYTES = 4
     socket = None
 
@@ -33,6 +35,7 @@ class Connection:
 
 
 class ConnectionToServer(Connection):
+    """Used by channels to manage connection to server"""
     def __init__(self, l_ip, l_port):
         self.ip = l_ip
         self.port = l_port
@@ -73,6 +76,7 @@ class ConnectionToServer(Connection):
 
 
 class ConnectionToClient(Connection):
+    """Used by channels to manage connection to clients"""
     connection = None
     remote_address = None
 

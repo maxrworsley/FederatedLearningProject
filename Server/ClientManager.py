@@ -6,6 +6,8 @@ from FLM import MessageDefinitions
 
 
 class ClientManager:
+    """Wraps a collection of nodes to make management easier. If a node
+    does not respond within timeouts it will be dropped from the round"""
     nodes = []
     keep_gathering_nodes = True
     local_socket = None
