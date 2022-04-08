@@ -33,7 +33,7 @@ class Coordinator:
 
     def perform_round(self):
         self.setup()
-        logging.info("Starting round")
+        logging.info("Completed setup. Starting round")
 
         self.wait_for_nodes()
         self.send_model()
@@ -51,16 +51,13 @@ class Coordinator:
         try:
             self.client_manager.gather_nodes(self.config_manager.node_count)
         except KeyboardInterrupt:
-            self.client_manager.keep_gathering_nodes = False
             logging.warning("Stopping prematurely. Waiting for connections to timeout")
+            self.client_manager.keep_gathering_nodes = False
             self.keep_running = False
 
     def send_model(self):
         if not self.keep_running:
             return
-
-        logging.info("Sending train model message")
-        model_message = MessageDefinitions.RequestTrainModel()
 
         if self.config_manager.remove_directory:
             self.tf_handler.get_model()
@@ -69,20 +66,23 @@ class Coordinator:
 
         self.tf_handler.save_current_model(self.config_manager.working_directory)
         self.cp_handler.create_checkpoint()
+
+        logging.info("Sending train model message")
+        model_message = MessageDefinitions.RequestTrainModel()
         model_message.checkpoint_bytes = self.cp_handler.get_saved_checkpoint_bytes()
         model_message.epochs = self.config_manager.epochs
         self.client_manager.send_model_to_nodes(model_message)
 
     def wait_for_responses(self):
         if not self.client_manager.are_any_active():
-            logging.info("No clients connected. Stopping.")
+            logging.info("No nodes connected. Stopping.")
             self.keep_running = False
             return
 
-        logging.info("Waiting for the model to be returned")
+        logging.info("Waiting for the model to be returned from nodes")
 
         try:
-            self.models_received_messages = self.client_manager.wait_for_node_models(self.config_manager.training_timeout)
+            self.models_received_messages = self.client_manager.wait_for_models(self.config_manager.training_timeout)
         except KeyboardInterrupt:
             logging.warning("Stopping prematurely. Waiting for timeout.")
             self.keep_running = False
@@ -102,6 +102,7 @@ class Coordinator:
                 cp_handler = CheckpointHandler.CheckpointHandler(os.path.join(received_model_directory, str(idx)),
                                                                  self.config_manager.remove_directory)
                 cp_handler.save_unpack_checkpoint(response.checkpoint_bytes)
+
                 model = self.tf_handler.load_model(os.path.join(received_model_directory, str(idx), "model"))
                 self.models_received.append((model, response.evaluation_loss))
 
@@ -122,7 +123,6 @@ class Coordinator:
         logging.info(f"Aggregated model computed. {selected_model}.")
 
     def plot_responses(self):
-        # todo model doesn't seem to be handed back to nodes when persistent
         if not self.keep_running:
             return
 
@@ -131,9 +131,9 @@ class Coordinator:
 
         visualiser = Visualiser()
 
-        history = [(message.history, message.sender_id) for message in self.models_received_messages]
-        visualiser.plot_evaluation_losses(history)
-        visualiser.plot_history_over_epochs(history, self.config_manager.epochs)
+        history_with_id = [(message.history, message.sender_id) for message in self.models_received_messages]
+        visualiser.plot_evaluation_losses(history_with_id)
+        visualiser.plot_history_over_epochs(history_with_id, self.config_manager.epochs)
 
     def __del__(self):
         # Clean up

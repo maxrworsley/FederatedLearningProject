@@ -37,6 +37,7 @@ class NodeWrapper:
         message.round_id = self.round_id
         message.sender_id = self.sender_id
         message.receiver_id = self.receiver_id
+
         self.send_queue.put(message)
 
     def receive(self, block=False, timeout=30):

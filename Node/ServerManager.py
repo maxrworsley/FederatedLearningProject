@@ -10,10 +10,10 @@ class ServerManager:
     client_thread = None
     send_queue = None
     receive_queue = None
+    config = None
     round_id = -1
     sender_id = -1
     receiver_id = -1
-    config = None
 
     def __init__(self, configuration):
         self.send_queue = queue.Queue()

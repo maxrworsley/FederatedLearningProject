@@ -12,8 +12,8 @@ class ModelAggregationHandler:
         self.models, self.scores = zip(*models_and_scores)
 
     def aggregate_models(self):
+        logging.info(f"Beginning model aggregation with {len(self.models)} models")
         output = list(copy.deepcopy(self.models))
-        logging.info(f"Beginning model aggregation with {len(output)} models")
 
         # We have to have an even amount of models
         if len(output) % 2 == 1:

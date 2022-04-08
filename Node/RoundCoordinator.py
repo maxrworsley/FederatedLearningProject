@@ -1,24 +1,23 @@
 import logging
 import threading
-import time
 
-import ClientTensorflowHandler
 from FLM import MessageDefinitions as msg
+from ClientTensorflowHandler import TensorflowHandler
 from ServerManager import ServerManager
 
 
 class RoundCoordinator:
-    configuration_manager = None
-    tensorflow_manager = None
+    config_manager = None
+    tf_manager = None
     keep_running = True
     receive_async_messages = True
 
     def __init__(self, config_manager):
-        self.configuration_manager = config_manager
+        self.config_manager = config_manager
         self.server_manager = ServerManager(config_manager)
-        self.tensorflow_manager = ClientTensorflowHandler.TensorflowHandler()
+        self.tf_manager = TensorflowHandler()
 
-    def start_round(self):
+    def perform_round(self):
         self.keep_running = True
         self.server_manager.start(self.cancel_callback)
         self.join_round()
@@ -41,20 +40,23 @@ class RoundCoordinator:
             if join_message.accepted_into_round:
                 logging.info("Joined round")
                 return
+            else:
+                logging.info("Unexpected response to join round request")
         else:
-            logging.info("Received unexpected/no response to join round request")
+            logging.info("No response to join round request")
 
     def wait_for_model(self):
         if not self.keep_running:
             return
 
         train_message = None
+
         while not train_message and self.keep_running:
             train_message = self.handle_messages(msg.RequestTrainModel.id)
             if train_message:
-                self.tensorflow_manager.received_bytes = train_message.checkpoint_bytes
-                self.tensorflow_manager.training_epochs = train_message.epochs
-                self.tensorflow_manager.validation_split = train_message.validation_split
+                self.tf_manager.received_bytes = train_message.checkpoint_bytes
+                self.tf_manager.training_epochs = train_message.epochs
+                self.tf_manager.validation_split = train_message.validation_split
                 return
 
         self.keep_running = False
@@ -63,22 +65,23 @@ class RoundCoordinator:
         if not self.keep_running:
             return
 
-        message_thread = threading.Thread(target=self.async_message_handler)
-        message_thread.start()
-        self.tensorflow_manager.train(self.configuration_manager)
+        receive_messages_thread = threading.Thread(target=self.async_message_handler)
+        receive_messages_thread.start()
+
+        self.tf_manager.train(self.config_manager)
         self.receive_async_messages = False
-        message_thread.join()
+        receive_messages_thread.join()
+
         response_message = msg.ResponseTrainModel()
-        response_message.checkpoint_bytes = \
-            self.tensorflow_manager.get_model_bytes_remove_directory(self.configuration_manager)
-        response_message.history = self.tensorflow_manager.get_history()
+        response_message.checkpoint_bytes = self.tf_manager.get_model_bytes_remove_directory(self.config_manager)
+        response_message.history = self.tf_manager.get_most_recent_history()
         self.server_manager.send_message(response_message)
 
     def stop_round(self):
         logging.info("Stopping")
         self.receive_async_messages = False
         self.keep_running = False
-        self.tensorflow_manager.stop_training()
+        self.tf_manager.stop_training()
         self.server_manager.stop()
 
     def get_message(self):
@@ -111,6 +114,7 @@ class RoundCoordinator:
 
     def handle_exceptional_message(self, message):
         m_id = message.id
+
         if m_id == msg.StopSession.id:
             self.stop_round()
         elif m_id == msg.CheckConnection.id:

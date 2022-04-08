@@ -8,7 +8,6 @@ class Visualiser:
             plt.figure(figsize=(5, 5))
             loss = history.history['loss']
             val_loss = history.history['val_loss']
-
             epochs_range = range(epochs)
 
             plt.plot(epochs_range, loss, label='Training Data Loss')

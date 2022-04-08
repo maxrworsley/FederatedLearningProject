@@ -15,6 +15,7 @@ class TensorflowHandler:
 
     def get_model_bytes_remove_directory(self, config):
         working_path = config.working_directory
+
         self.model_trainer.save_model(working_path)
         self.checkpoint_handler.create_checkpoint()
         return self.checkpoint_handler.get_saved_checkpoint_bytes()
@@ -34,7 +35,7 @@ class TensorflowHandler:
         self.stopping_callback = StopTrainingCallback()
         self.model_trainer.fit_model(self.training_epochs, self.validation_split, self.stopping_callback)
 
-    def get_history(self):
+    def get_most_recent_history(self):
         return self.model_trainer.history[-1]
 
     def stop_training(self):

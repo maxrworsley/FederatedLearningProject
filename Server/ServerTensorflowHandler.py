@@ -1,4 +1,5 @@
 import logging
+import os
 
 import tensorflow as tf
 
@@ -14,10 +15,8 @@ class TensorflowHandler:
                 return
             except IOError:
                 logging.warning("Tried to load saved model, but couldn't be found")
-                pass
             except ImportError:
                 logging.warning("Tried to load saved model, but hdf5 file is not present")
-                pass
 
         logging.info("Creating model")
 
@@ -37,7 +36,7 @@ class TensorflowHandler:
         self.model = model
 
     def save_current_model(self, working_directory):
-        path = working_directory + "/model"
+        path = os.path.join(working_directory, "model")
         tf.keras.models.save_model(self.model, path)
 
     @staticmethod

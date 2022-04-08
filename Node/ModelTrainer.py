@@ -1,4 +1,5 @@
 import logging
+import os
 
 import tensorflow as tf
 
@@ -47,7 +48,7 @@ class ModelTrainer:
         )
 
     def load_model(self, path):
-        self.model = tf.keras.models.load_model(path + '/model')
+        self.model = tf.keras.models.load_model(os.path.join(path, 'model'))
 
     def fit_model(self, epochs, validation_split, stopping_callback):
         self.train(epochs, validation_split, stopping_callback)
@@ -58,8 +59,10 @@ class ModelTrainer:
             self.test_labels,
             verbose=0
         )
+
         logging.info(f"Model before training has loss {pre_loss}")
         logging.info(f"Beginning training with {epochs} epochs and a validation split of {split}.")
+
         history = self.model.fit(
             self.training_features,
             self.training_labels,
@@ -74,8 +77,8 @@ class ModelTrainer:
             self.test_labels,
             verbose=0
         )
-        logging.info(f"Post loss = {post_loss}")
 
+        logging.info(f"Model after training has loss {post_loss}")
         self.history.append(history)
 
     def save_model(self, path):
