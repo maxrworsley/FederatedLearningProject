@@ -58,6 +58,7 @@ class BaseChannel:
                     self.disconnect()
                     return None
         else:
+            # Asynchronous
             try:
                 message_bytes = self.connection.receive_bytes()
             except socket.timeout:

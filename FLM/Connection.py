@@ -6,7 +6,9 @@ from socket import *
 def get_new_server_socket(ip, port):
     """Used to set correct parameters for a server socket"""
     new_socket = socket(AF_INET, SOCK_STREAM)
+    # Allow reuse of socket immediately after closing
     new_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+    # Timeout for connections
     new_socket.settimeout(0.5)
     new_socket.bind((ip, port))
     new_socket.listen(10)
@@ -27,6 +29,7 @@ class Connection:
 
         data = bytearray()
         while packet_length > 0:
+            # Don't receive any more than the remainder of the message
             new_data = receiving_socket.recv(min(buffer_size, packet_length))
             data += new_data
             packet_length -= len(new_data)
@@ -107,6 +110,7 @@ class ConnectionToClient(Connection):
         self.disconnect()
         for x in range(conn_comm.timeout):
             if conn_comm.terminate_early:
+                # Calling function has asked to terminate attempts to connect
                 break
             try:
                 self.connection, self.remote_address = self.socket.accept()
