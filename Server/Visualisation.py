@@ -14,7 +14,7 @@ class Visualiser:
 
             plt.plot(epochs_range, loss, label='Training Data Loss')
             plt.plot(epochs_range, val_loss, label='Validation Data Loss')
-            plt.legend(loc='lower left')
+            plt.legend(loc='upper right')
             plt.title(f'Loss over epochs for node id {ID}')
             plt.show()
 
