@@ -20,6 +20,7 @@ class ConfigurationManager:
         if args.run_on_desktop_extension:
             # If running on the desktop, data and the working directory have to be specified
             self.run_on_desktop = True
-            self.file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/Node/data.csv"
+            self.file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/" \
+                             "data/daily_combined_cambridge_botanical_gardens_qcv1_2009.csv.csv"
             self.working_directory = os.path.join("/home/max/Documents/FederatedLearning/node_working_directory",
                                                   args.run_on_desktop_extension)

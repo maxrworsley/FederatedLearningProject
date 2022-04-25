@@ -38,7 +38,7 @@ class TensorflowHandler:
 
     def save_current_model(self, working_directory):
         path = os.path.join(working_directory, "model")
-        tf.keras.models.save_model(self.model, path)
+        tf.keras.models.save_model(self.model, path, overwrite=True)
 
     @staticmethod
     def load_model(path):
