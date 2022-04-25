@@ -4,7 +4,11 @@ import subprocess
 
 
 def build_nodes():
-    # todo should ensure correct directory
+    directory_contents = [file for file in os.listdir(os.getcwd())]
+
+    if "data" not in directory_contents or "Node" not in directory_contents:
+        print("Data and Node not in cwd. Stopping")
+        return
 
     data_path = "./data"
     only_files = [os.path.join(data_path, file)
