@@ -2,6 +2,13 @@
 
 This repo contains the Server, Node and middleware code for the Federated Learning Project.
 
+Requirements for running:
+- docker
+- environment containing tensorflow, pandas, numpy, matplotlib
+
+In order to run the components, insert the data into a top level /data/ folder. Then run build_nodes.py.\
+Following the completion of the script, run the server, then run the launch_nodes script. Ensure that the server is waiting for the correct number of nodes.
+
 Brief description of components:
 - FLM (Middleware): This middleware is built on top of python sockets with pickle and custom serialisation. It is designed for use with the MessageDefinitions found inside.
 - Node (Client): This node is designed for running with docker, though can be run outside a container with the correct flags passed. Each node must have a different, new working directory if this is the case
