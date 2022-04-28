@@ -143,6 +143,7 @@ class Coordinator:
             return
 
         visualiser.plot_evaluation_losses(history_with_id)
+        visualiser.plot_loss_same_graph(history_with_id, self.config_manager.epochs)
         visualiser.plot_history_over_epochs(history_with_id, self.config_manager.epochs)
 
     def __del__(self):
