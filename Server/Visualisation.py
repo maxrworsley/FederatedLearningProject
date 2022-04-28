@@ -3,11 +3,14 @@ import matplotlib.pyplot as plt
 
 class Visualiser:
     """Handles graphing of node results"""
+    plot_style = 'ggplot'
+    figure_size = (6, 6)
+
     @staticmethod
     def plot_history_over_epochs(history_with_info, epochs):
-        plt.style.use('ggplot')
+        plt.style.use(Visualiser.plot_style)
         for history, ID, location in history_with_info:
-            plt.figure(figsize=(5, 5))
+            plt.figure(figsize=Visualiser.figure_size)
             loss = history.history['loss']
             val_loss = history.history['val_loss']
             epochs_range = range(epochs)
@@ -26,8 +29,8 @@ class Visualiser:
 
     @staticmethod
     def plot_loss_same_graph(history_with_info, epochs):
-        plt.style.use('ggplot')
-        plt.figure(figsize=(5, 5))
+        plt.style.use(Visualiser.plot_style)
+        plt.figure(figsize=Visualiser.figure_size)
 
         for history, ID, location in history_with_info:
             plt.plot(range(epochs), history.history['val_loss'], label=f'Loss for ID {ID} ({location})')
@@ -43,8 +46,8 @@ class Visualiser:
 
     @staticmethod
     def plot_evaluation_losses(history_with_info):
-        plt.style.use('ggplot')
-        plt.figure(figsize=(5, 5))
+        plt.style.use(Visualiser.plot_style)
+        plt.figure(figsize=Visualiser.figure_size)
 
         val_losses = []
         ids = []
@@ -55,8 +58,10 @@ class Visualiser:
 
         x_names = [i for i, _ in enumerate(ids)]
         plt.bar(x_names, val_losses)
+
         plt.xlabel("Node ID")
         plt.ylabel("Validation loss")
         plt.title("Losses for each ID")
         plt.xticks(x_names, ids)
+
         plt.show()
