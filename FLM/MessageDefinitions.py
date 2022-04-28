@@ -55,6 +55,7 @@ class ResponseTrainModel(BaseMessage):
     checkpoint_bytes = ""
     evaluation_loss = 10
     history = None
+    location = None
 
 
 class RequestLeaveRound(BaseMessage):
