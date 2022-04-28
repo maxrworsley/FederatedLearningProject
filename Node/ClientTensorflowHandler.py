@@ -37,7 +37,7 @@ class TensorflowHandler:
         data_wrapper = DataWrapper.DataWrapper(config.file_path)
         self.model_trainer = ModelTrainer(data_wrapper)
         self.model_trainer.get_data()
-        self.location = data_wrapper.location
+        self.location = self.model_trainer.get_location()
 
         if self.received_bytes:
             self.checkpoint_handler.save_unpack_checkpoint(self.received_bytes)

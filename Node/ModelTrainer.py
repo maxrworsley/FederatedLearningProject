@@ -85,3 +85,6 @@ class ModelTrainer:
 
     def save_model(self, path):
         tf.keras.models.save_model(self.model, path)
+
+    def get_location(self):
+        return self.data_wrapper.location
