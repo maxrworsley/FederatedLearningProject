@@ -136,7 +136,8 @@ class Coordinator:
 
         visualiser = Visualiser()
 
-        history_with_id = [(message.history, message.sender_id) for message in self.models_received_messages if message]
+        history_with_id = [(message.history, message.sender_id, message.location)
+                           for message in self.models_received_messages if message]
 
         if len(history_with_id) < 1:
             print("Tried to display results but none found")

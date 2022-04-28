@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 class Visualiser:
     """Handles graphing of node results"""
     @staticmethod
-    def plot_history_over_epochs(histories, epochs):
+    def plot_history_over_epochs(history_with_info, epochs):
         plt.style.use('ggplot')
-        for history, ID in histories:
+        for history, ID, location in history_with_info:
             plt.figure(figsize=(5, 5))
             loss = history.history['loss']
             val_loss = history.history['val_loss']
@@ -20,17 +20,17 @@ class Visualiser:
             plt.ylim([0, 0.3])
 
             plt.legend(loc='upper right')
-            plt.title(f'Loss over epochs for node id {ID}')
+            plt.title(f'Loss over epochs for node ID {ID} ({location})')
 
             plt.show()
 
     @staticmethod
-    def plot_loss_same_graph(histories, epochs):
+    def plot_loss_same_graph(history_with_info, epochs):
         plt.style.use('ggplot')
         plt.figure(figsize=(5, 5))
 
-        for history, ID in histories:
-            plt.plot(range(epochs), history.history['val_loss'], label=f'Loss for ID {ID}')
+        for history, ID, location in history_with_info:
+            plt.plot(range(epochs), history.history['val_loss'], label=f'Loss for ID {ID} ({location})')
 
         plt.xlabel("Epoch")
         plt.ylabel("Mean absolute loss")
@@ -42,16 +42,16 @@ class Visualiser:
         plt.show()
 
     @staticmethod
-    def plot_evaluation_losses(history_with_ids):
+    def plot_evaluation_losses(history_with_info):
         plt.style.use('ggplot')
         plt.figure(figsize=(5, 5))
 
         val_losses = []
         ids = []
         # Get the last evaluation result
-        for history, ID in history_with_ids:
+        for history, ID, location in history_with_info:
             val_losses.append(history.history['val_loss'][-1])
-            ids.append(ID)
+            ids.append(f"{ID} ({location})")
 
         x_names = [i for i, _ in enumerate(ids)]
         plt.bar(x_names, val_losses)
