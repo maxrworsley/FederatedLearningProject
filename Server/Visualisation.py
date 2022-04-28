@@ -20,7 +20,7 @@ class Visualiser:
             plt.ylim([0, 0.3])
 
             plt.legend(loc='upper right')
-            plt.title(f'Loss over epochs for node ID {ID} ({location})')
+            plt.title(f'Loss for node ID {ID} ({location})')
 
             plt.show()
 
