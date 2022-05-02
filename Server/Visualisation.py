@@ -3,37 +3,65 @@ import matplotlib.pyplot as plt
 
 class Visualiser:
     """Handles graphing of node results"""
+    plot_style = 'ggplot'
+    figure_size = (6, 6)
+
     @staticmethod
-    def plot_history_over_epochs(histories, epochs):
-        plt.style.use('ggplot')
-        for history, ID in histories:
-            plt.figure(figsize=(5, 5))
+    def plot_history_over_epochs(history_with_info, epochs):
+        plt.style.use(Visualiser.plot_style)
+        for history, ID, location in history_with_info:
+            plt.figure(figsize=Visualiser.figure_size)
             loss = history.history['loss']
             val_loss = history.history['val_loss']
             epochs_range = range(epochs)
 
             plt.plot(epochs_range, loss, label='Training Data Loss')
             plt.plot(epochs_range, val_loss, label='Validation Data Loss')
+
+            plt.xlabel("Epoch")
+            plt.ylabel("Mean absolute loss")
+            plt.ylim([0, 0.3])
+
             plt.legend(loc='upper right')
-            plt.title(f'Loss over epochs for node id {ID}')
+            plt.title(f'Loss for node ID {ID} ({location})')
+
             plt.show()
 
     @staticmethod
-    def plot_evaluation_losses(history_with_ids):
-        plt.style.use('ggplot')
-        plt.figure(figsize=(5, 5))
+    def plot_loss_same_graph(history_with_info, epochs):
+        plt.style.use(Visualiser.plot_style)
+        plt.figure(figsize=Visualiser.figure_size)
+
+        for history, ID, location in history_with_info:
+            plt.plot(range(epochs), history.history['val_loss'], label=f'Loss for ID {ID} ({location})')
+
+        plt.xlabel("Epoch")
+        plt.ylabel("Mean absolute loss")
+        plt.ylim([0, 0.3])
+
+        plt.legend(loc='upper right')
+        plt.title("Evaluation loss ")
+
+        plt.show()
+
+    @staticmethod
+    def plot_evaluation_losses(history_with_info):
+        plt.style.use(Visualiser.plot_style)
+        plt.figure(figsize=Visualiser.figure_size)
 
         val_losses = []
         ids = []
         # Get the last evaluation result
-        for history, ID in history_with_ids:
+        for history, ID, location in history_with_info:
             val_losses.append(history.history['val_loss'][-1])
-            ids.append(ID)
+            ids.append(f"{ID} ({location})")
 
         x_names = [i for i, _ in enumerate(ids)]
-        plt.bar(x_names, val_losses, color='green')
-        plt.xlabel("Validation loss")
-        plt.ylabel("Node ID")
+        plt.bar(x_names, val_losses)
+
+        plt.xlabel("Node ID")
+        plt.ylabel("Validation loss")
         plt.title("Losses for each ID")
         plt.xticks(x_names, ids)
+
         plt.show()

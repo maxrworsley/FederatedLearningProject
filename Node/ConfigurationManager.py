@@ -4,7 +4,7 @@ import os.path
 
 class ConfigurationManager:
     run_on_desktop = False
-    file_path = "/home/FLS/Node/data.csv"
+    file_path = "/home/FLS/Node/data/"
     working_directory = "/home/FLS/Node/working_directory/"
     remote_ip = "172.17.0.1"
     remote_port = 40400
@@ -21,6 +21,6 @@ class ConfigurationManager:
             # If running on the desktop, data and the working directory have to be specified
             self.run_on_desktop = True
             self.file_path = "/home/max/Documents/FederatedLearning/FederatedLearningProject/" \
-                             "data/daily_combined_cambridge_botanical_gardens_qcv1_2009.csv.csv"
+                             "data/"
             self.working_directory = os.path.join("/home/max/Documents/FederatedLearning/node_working_directory",
                                                   args.run_on_desktop_extension)

@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
+import os
 
 
 class DataWrapper:
+    location = ""
     """Wraps methods for getting and sorting the local data"""
     def __init__(self, data_path):
         self.data_path = data_path
@@ -10,7 +12,14 @@ class DataWrapper:
     def get_data(self):
         column_names = ['day', 'max_temp', 'min_temp', 'precipitation_amount', 'target']
 
-        raw_dataset = pd.read_csv(self.data_path, names=column_names,
+        only_files = [os.path.join(self.data_path, file)
+                      for file in os.listdir(self.data_path)
+                      if os.path.isfile(os.path.join(self.data_path, file))]
+
+        self.location = only_files[0].split("/")[-1].split("_")[0]
+        file_path = os.path.join(self.data_path, only_files[0].split("/")[-1])
+
+        raw_dataset = pd.read_csv(file_path, names=column_names,
                                   na_values='#REF!', comment='\t',
                                   sep=',', skipinitialspace=True)
         normalized_df = (raw_dataset - raw_dataset.min()) / (raw_dataset.max() - raw_dataset.min())

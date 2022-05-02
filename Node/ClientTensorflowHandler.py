@@ -13,6 +13,7 @@ class TensorflowHandler:
     training_thread = None
     model_trainer = None
     checkpoint_handler = None
+    location = None
 
     def get_model_bytes_remove_directory(self, config):
         """
@@ -36,6 +37,7 @@ class TensorflowHandler:
         data_wrapper = DataWrapper.DataWrapper(config.file_path)
         self.model_trainer = ModelTrainer(data_wrapper)
         self.model_trainer.get_data()
+        self.location = self.model_trainer.get_location()
 
         if self.received_bytes:
             self.checkpoint_handler.save_unpack_checkpoint(self.received_bytes)

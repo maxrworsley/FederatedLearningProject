@@ -136,13 +136,15 @@ class Coordinator:
 
         visualiser = Visualiser()
 
-        history_with_id = [(message.history, message.sender_id) for message in self.models_received_messages if message]
+        history_with_id = [(message.history, message.sender_id, message.location)
+                           for message in self.models_received_messages if message]
 
         if len(history_with_id) < 1:
             print("Tried to display results but none found")
             return
 
         visualiser.plot_evaluation_losses(history_with_id)
+        visualiser.plot_loss_same_graph(history_with_id, self.config_manager.epochs)
         visualiser.plot_history_over_epochs(history_with_id, self.config_manager.epochs)
 
     def __del__(self):
