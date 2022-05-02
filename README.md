@@ -4,10 +4,10 @@ This repo contains the Server, Node and middleware code for the Federated Learni
 
 In order to run the components:
 - Ensure docker is installed
-- Install server requirements.txt to a virtual environment
+- Install server requirements.txt to a virtual environment (venv). Insert the FLM package into the venv python path.
 - Insert the data into a top level /data/ folder. 
-- Run build_nodes.py.
-- Run the server using the configured virtual environment. Ensure that the server is waiting for the correct number of nodes.
+- Run build_nodes.py in place.
+- Run the server using the venv. Ensure that the server is waiting for the correct number of nodes.
 - Run the launch_nodes.sh script.
 
 Brief description of components:
